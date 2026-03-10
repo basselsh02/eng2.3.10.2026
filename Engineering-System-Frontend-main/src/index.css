@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Cairo";
+  src: url("./assets/fonts/Cairo-VariableFont_slnt\,wght.ttf")
+}
+
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+
+/* light mode */
+@theme {
+  --color-background: oklch(98.463% 0.00181 249.248);
+  --color-base: oklch(100% 0 0);
+  --color-foreground: oklch(0% 0 0);
+  --color-primary-50: oklch(96% 0.02 255);
+  --color-primary-100: oklch(90% 0.05 255);
+  --color-primary-200: oklch(82% 0.08 255);
+  --color-primary-300: oklch(72% 0.12 255);
+  --color-primary-400: oklch(60% 0.16 255);
+  --color-primary-500: oklch(46% 0.19 255);
+  /* ← اللون الأساسي */
+  --color-primary-600: oklch(40% 0.17 255);
+  --color-primary-700: oklch(32% 0.14 255);
+  --color-primary-800: oklch(24% 0.10 255);
+  --color-primary-900: oklch(17% 0.06 255);
+  --color-primary-950: oklch(12% 0.04 255);
+  --color-primary-content-50: oklch(0% 0 0);
+  --color-primary-content-100: oklch(0% 0 0);
+  --color-primary-content-200: oklch(0% 0 0);
+  --color-primary-content-300: oklch(0% 0 0);
+  --color-primary-content-400: oklch(100% 0 0);
+  --color-primary-content-500: oklch(100% 0 0);
+  --color-primary-content-600: oklch(100% 0 0);
+  --color-primary-content-700: oklch(100% 0 0);
+  --color-primary-content-800: oklch(100% 0 0);
+  --color-primary-content-900: oklch(100% 0 0);
+  --color-primary-content-950: oklch(100% 0 0);
+}
+
+/* dark mode */
+@layer theme {
+  .dark {
+    --color-background: oklab(21.779% 0 -0.00002);
+    --color-base: oklch(25% 0.00002 271.152);
+    --color-foreground: oklch(100% 0 0);
+    --color-primary-50: oklch(96% 0.02 255);
+    --color-primary-100: oklch(90% 0.05 255);
+    --color-primary-200: oklch(82% 0.08 255);
+    --color-primary-300: oklch(72% 0.12 255);
+    --color-primary-400: oklch(60% 0.16 255);
+    --color-primary-500: oklch(46% 0.19 255);
+    /* ← اللون الأساسي */
+    --color-primary-600: oklch(40% 0.17 255);
+    --color-primary-700: oklch(32% 0.14 255);
+    --color-primary-800: oklch(24% 0.10 255);
+    --color-primary-900: oklch(17% 0.06 255);
+    --color-primary-950: oklch(12% 0.04 255);
+  }
+}
+
+body {
+  font-family: "Cairo", sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
