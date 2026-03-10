@@ -2,6 +2,8 @@ import { AppError } from "../../../utils/AppError.js";
 import projectDataModel from "../models/projectData.model.js";
 import mongoose from "mongoose";
 
+// ── existing functions (unchanged) ───────────────────────────
+
 // Create Project Data
 export const createProjectData = async (req, res, next) => {
     try {
@@ -81,10 +83,7 @@ export const updateProjectData = async (req, res, next) => {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return next(new AppError("ID غير صحيح", 400));
         }
-        const projectData = await projectDataModel.findByIdAndUpdate(id, req.body, {
-            new: true,
-            runValidators: true
-        });
+        const projectData = await projectDataModel.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
         if (!projectData) {
             return next(new AppError("بيانات المشروع غير موجودة", 404));
         }
@@ -105,7 +104,7 @@ export const deleteProjectData = async (req, res, next) => {
         if (!projectData) {
             return next(new AppError("بيانات المشروع غير موجودة", 404));
         }
-        res.json({ success: true, message: "تم حذف بيانات المشروع بنجاح" });
+        res.json({ success: true, message: "تم الحذف بنجاح" });
     } catch (error) {
         return next(new AppError(error.message, 500));
     }
@@ -115,18 +114,12 @@ export const deleteProjectData = async (req, res, next) => {
 export const addWorkItem = async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return next(new AppError("ID غير صحيح", 400));
-        }
-        
-        const projectData = await projectDataModel.findById(id);
-        if (!projectData) {
-            return next(new AppError("بيانات المشروع غير موجودة", 404));
-        }
-
-        projectData.workItems.push(req.body);
-        await projectData.save();
-
+        const projectData = await projectDataModel.findByIdAndUpdate(
+            id,
+            { $push: { workItems: req.body } },
+            { new: true }
+        );
+        if (!projectData) return next(new AppError("بيانات المشروع غير موجودة", 404));
         res.json({ success: true, data: projectData });
     } catch (error) {
         return next(new AppError(error.message, 500));
@@ -137,18 +130,12 @@ export const addWorkItem = async (req, res, next) => {
 export const addCandidateCompany = async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return next(new AppError("ID غير صحيح", 400));
-        }
-        
-        const projectData = await projectDataModel.findById(id);
-        if (!projectData) {
-            return next(new AppError("بيانات المشروع غير موجودة", 404));
-        }
-
-        projectData.candidateCompanies.push(req.body);
-        await projectData.save();
-
+        const projectData = await projectDataModel.findByIdAndUpdate(
+            id,
+            { $push: { candidateCompanies: req.body } },
+            { new: true }
+        );
+        if (!projectData) return next(new AppError("بيانات المشروع غير موجودة", 404));
         res.json({ success: true, data: projectData });
     } catch (error) {
         return next(new AppError(error.message, 500));
@@ -159,17 +146,41 @@ export const addCandidateCompany = async (req, res, next) => {
 export const addProjectCondition = async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return next(new AppError("ID غير صحيح", 400));
-        }
-        
-        const projectData = await projectDataModel.findById(id);
-        if (!projectData) {
-            return next(new AppError("بيانات المشروع غير موجودة", 404));
+        const projectData = await projectDataModel.findByIdAndUpdate(
+            id,
+            { $push: { projectConditions: req.body } },
+            { new: true }
+        );
+        if (!projectData) return next(new AppError("بيانات المشروع غير موجودة", 404));
+        res.json({ success: true, data: projectData });
+    } catch (error) {
+        return next(new AppError(error.message, 500));
+    }
+};
+
+// ── NEW: Get by projectCode + optional financialYear ─────────
+/**
+ * GET /api/project-data/by-code?projectCode=XXX&financialYear=2026/2025
+ * Used by the /publishing-office/projects-details page.
+ */
+export const getProjectDataByCode = async (req, res, next) => {
+    try {
+        const { projectCode, financialYear } = req.query;
+
+        if (!projectCode) {
+            return next(new AppError("كود المشروع مطلوب", 400));
         }
 
-        projectData.projectConditions.push(req.body);
-        await projectData.save();
+        const filter = { projectCode: { $regex: `^${projectCode}$`, $options: 'i' } };
+        if (financialYear) {
+            filter.financialYear = { $regex: `^${financialYear}$`, $options: 'i' };
+        }
+
+        const projectData = await projectDataModel.findOne(filter);
+
+        if (!projectData) {
+            return next(new AppError("لم يتم العثور على بيانات المشروع", 404));
+        }
 
         res.json({ success: true, data: projectData });
     } catch (error) {

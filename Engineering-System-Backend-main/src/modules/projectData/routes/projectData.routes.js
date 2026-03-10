@@ -7,7 +7,11 @@ const router = express.Router();
 // All routes are protected
 router.use(protect);
 
-// Main CRUD routes
+// ── NEW route — must come BEFORE /:id ────────────────────────
+// GET /api/project-data/by-code?projectCode=XXX&financialYear=2026/2025
+router.get("/by-code", projectDataController.getProjectDataByCode);
+
+// ── Existing routes (unchanged) ──────────────────────────────
 router.route("/")
     .post(projectDataController.createProjectData)
     .get(projectDataController.getAllProjectData);

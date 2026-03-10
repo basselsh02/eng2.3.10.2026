@@ -1,5 +1,6 @@
 import api from "./axiosInstance";
 
+// ── existing functions (unchanged) ───────────────────────────
 export const getProjectData = async (filters) => {
     const res = await api.get("/project-data", { params: filters });
     return res.data;
@@ -37,5 +38,13 @@ export const addCandidateCompany = async ({ id, data }) => {
 
 export const addProjectCondition = async ({ id, data }) => {
     const res = await api.post(`/project-data/${id}/project-conditions`, data);
+    return res.data;
+};
+
+// ── NEW: fetch one record by projectCode + optional financialYear ─
+export const getProjectDataByCode = async ({ projectCode, financialYear }) => {
+    const params = { projectCode };
+    if (financialYear) params.financialYear = financialYear;
+    const res = await api.get("/project-data/by-code", { params });
     return res.data;
 };

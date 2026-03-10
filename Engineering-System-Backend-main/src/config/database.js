@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { seedBillOfQuantities, seedSuperAdmin, seedProjects, seedOrganizationalUnit, seedUser } from "./seed.js";
 import { seedProjectPublications, seedCollections, seedBookletSales, seedPublicationMemos } from "./seedPublishingOffice.js";
 import { seedContractBudgetStatements, seedFinancialDeductions } from "./seedBudgetOffice.js";
+import { seedProjectData } from "./seedProjectData.js";   // ← ADD THIS IMPORT
 import projectModel from "../modules/project/models/project.model.js";
 
 export default async function connectDB() {
@@ -28,6 +29,10 @@ export default async function connectDB() {
         console.log("Seeding Budget Office modules...");
         await seedContractBudgetStatements();
         await seedFinancialDeductions();
+
+        // Seed Project Data module  ← ADD THIS BLOCK
+        console.log("Seeding Project Data module...");
+        await seedProjectData();
         
         console.log("All seeding completed successfully!");
     } catch (err) {

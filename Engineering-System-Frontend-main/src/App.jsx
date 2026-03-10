@@ -52,6 +52,10 @@ import PublishingProjects from "./components/pages/PublishingOffice/PublishingPr
 import ProjectDetail from "./components/pages/PublishingOffice/ProjectDetail/index";
 import BudgetProjects from "./components/pages/BudgetOffice/BudgetProjects";
 import BudgetProjectDetail from "./components/pages/BudgetOffice/ProjectDetail/index";
+import ProjectsData from "./components/pages/PublishingOffice/ProjectsData/index";
+import ProjectsDetails from "./components/pages/PublishingOffice/ProjectsDetails";
+
+
 
 const router = createBrowserRouter([
   {
@@ -112,6 +116,14 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "publishing-office/projects-details",
+        element: (
+          <ProtectedRoute>
+            <ProjectsDetails />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: "organization-units",
         element: (
           <ProtectedRoute>
@@ -124,6 +136,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <AddOrganizationUnits />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "publishing-office/projects-data",
+        element: (
+          <ProtectedRoute>
+            <ProjectsData />
           </ProtectedRoute>
         ),
       },
