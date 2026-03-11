@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDeductionsByProject, createFinancialDeduction, deleteFinancialDeduction } from "../../../../../api/financialDeductionAPI";
 import Button from "../../../../ui/Button/Button";
 import Input from "../../../../ui/Input/Input";
-import Select from "../../../../ui/Select/Select";
 import Loading from "../../../../common/Loading/Loading";
 import toast from "react-hot-toast";
 
@@ -84,12 +83,12 @@ export default function FinancialDeductionsTab({ projectId }) {
             onChange={isAdding ? handleInputChange : undefined}
             readOnly={!isAdding}
           />
-          <Select
+          <Input
             label="العام المالي"
             name="financialYear"
             value={display.financialYear || ""}
             onChange={isAdding ? handleInputChange : undefined}
-            disabled={!isAdding}
+            readOnly={!isAdding}
           />
         </div>
 
