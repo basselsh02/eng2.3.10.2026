@@ -54,7 +54,11 @@ import BudgetProjects from "./components/pages/BudgetOffice/BudgetProjects";
 import BudgetProjectDetail from "./components/pages/BudgetOffice/ProjectDetail/index";
 import ProjectsData from "./components/pages/PublishingOffice/ProjectsData/index";
 import ProjectsDetails from "./components/pages/PublishingOffice/ProjectsDetails";
-
+import ProjectCollectionFollowupHome from "./components/pages/ProjectCollectionFollowup/ProjectCollectionFollowupHome";
+import SettlementsFollowupPage from "./components/pages/ProjectCollectionFollowup/SettlementsFollowupPage";
+import ReportsPrintPage from "./components/pages/ProjectCollectionFollowup/ReportsPrintPage";
+import ProjectStatusRegisterPage from "./components/pages/ProjectCollectionFollowup/ProjectStatusRegisterPage";
+import SalesTaxFormPage from "./components/pages/ProjectCollectionFollowup/SalesTaxFormPage";
 
 
 const router = createBrowserRouter([
@@ -392,6 +396,46 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <BudgetProjectDetail />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "project-collection-followup",
+        element: (
+          <ProtectedRoute>
+            <ProjectCollectionFollowupHome />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "project-collection-followup/settlements",
+        element: (
+          <ProtectedRoute>
+            <SettlementsFollowupPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "project-collection-followup/reports",
+        element: (
+          <ProtectedRoute>
+            <ReportsPrintPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "project-collection-followup/project-status/:id",
+        element: (
+          <ProtectedRoute>
+            <ProjectStatusRegisterPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "project-collection-followup/sales-tax/:projectId",
+        element: (
+          <ProtectedRoute>
+            <SalesTaxFormPage />
           </ProtectedRoute>
         ),
       },
