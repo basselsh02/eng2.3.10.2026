@@ -69,7 +69,12 @@ const projectPublicationSchema = new mongoose.Schema({
         registrationNumber: String,
         recordNumber: String,
         approvalNumber: String,
-        purchased: { type: Boolean, default: false }
+        purchased: { type: Boolean, default: false },
+        insurancePaymentMethod: {
+            type: String,
+            enum: ["بدون", "نقدي", "شيك", "تحويل بنكي"],
+            default: "بدون"
+        }
     }],
     // Publication Memos List (from طباعة المذكرات tab)
     publicationMemosList: [{

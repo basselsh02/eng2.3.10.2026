@@ -19,6 +19,12 @@ const publicationMemoSchema = new mongoose.Schema({
     executingBranchName: {
         type: String
     },
+    // Military/Civil toggle - matches عسكري/مدني column in the UI
+    staffType: {
+        type: String,
+        enum: ['عسكري/مدني', 'عسكري', 'مدني'],
+        default: 'عسكري/مدني'
+    },
     // Print action
     printAction: {
         type: String,
