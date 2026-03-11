@@ -23,7 +23,6 @@ import UpdateUser from "./components/pages/User/UpdateUser";
 import OrganizationUnits from "./components/pages/OrganizationUnits/OrganizationUnits";
 import AddOrganizationUnits from "./components/pages/OrganizationUnits/AddOrganizationUnits";
 import SpecificUser from "./components/pages/User/SpecificUser";
-import ProjectDetails from "./components/pages/Project/ProjectDetails";
 import Company from "./components/pages/Company/Company";
 import AddCompany from "./components/pages/Company/AddCompany";
 import FinancialRegistration from "./components/pages/BillOfQuantities/FinancialRegistration";
@@ -59,7 +58,6 @@ import SettlementsFollowupPage from "./components/pages/ProjectCollectionFollowu
 import ReportsPrintPage from "./components/pages/ProjectCollectionFollowup/ReportsPrintPage";
 import ProjectStatusRegisterPage from "./components/pages/ProjectCollectionFollowup/ProjectStatusRegisterPage";
 import SalesTaxFormPage from "./components/pages/ProjectCollectionFollowup/SalesTaxFormPage";
-
 
 const router = createBrowserRouter([
   {
@@ -103,7 +101,7 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-            {
+      {
         path: "/projects",
         element: (
           <ProtectedRoute>

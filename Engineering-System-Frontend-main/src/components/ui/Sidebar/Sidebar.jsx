@@ -6,8 +6,8 @@ import {
   BiPackage,
   BiFile,
 } from "react-icons/bi";
-import { FaProjectDiagram, FaUser, FaBoxes } from "react-icons/fa";
-import { MdEmail, MdSend, MdDashboard } from "react-icons/md";
+import { FaProjectDiagram, FaUser } from "react-icons/fa";
+import { MdDashboard } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 import Button from "../Button/Button";
