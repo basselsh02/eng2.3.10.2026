@@ -7,7 +7,13 @@ import projectModel from "../modules/project/models/project.model.js";
 
 export default async function connectDB() {
     try {
-        await mongoose.connect(process.env.MONGO_URL);
+        const mongoUri = process.env.MONGO_URL || process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/engineering-system";
+
+        if (!process.env.MONGO_URL && !process.env.MONGODB_URI) {
+            console.warn("No MONGO_URL or MONGODB_URI found in environment. Falling back to local MongoDB URI.");
+        }
+
+        await mongoose.connect(mongoUri);
         console.log("DB Connected");
         
         // Seed base data
