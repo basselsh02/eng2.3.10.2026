@@ -10,6 +10,12 @@ router.use(protect);
 // Get procedures by project
 router.get("/project/:projectId", procedureController.getProceduresByProject);
 
+
+// Procedures page company offers by project code
+router.get('/:code/company-offers', procedureController.getProcedureCompanyOffersByProjectCode);
+router.put('/:code/company-offers/:offerId', procedureController.updateProcedureCompanyOffer);
+router.patch('/:code/company-offers/:offerId', procedureController.updateProcedureCompanyOffer);
+
 // Main CRUD routes
 router.route("/")
     .post(procedureController.createProcedure)

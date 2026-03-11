@@ -78,9 +78,9 @@ const ProjectFullDetails = () => {
     );
 
     const tabs = [
+        { id: 'procedures', label: 'الإجراءات' },
         { id: 'financial-procedures', label: 'الإجراءات المالية' },
-        { id: 'financial-status', label: 'الموقف المالي' },
-        { id: 'procedures', label: 'الإجراءات' }
+        { id: 'financial-status', label: 'تسجيل الموقف المالي للمشروعات' }
     ];
 
     const handleFormSuccess = (tabId) => {
@@ -104,7 +104,7 @@ const ProjectFullDetails = () => {
             {/* Data Display Section */}
             <div>
                 <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold">قائمة الإجراءات المالية</h3>
+                    <h3 className="text-lg font-semibold">الإجراءات المالية</h3>
                     <Button
                         size="sm"
                         onClick={() => setShowFormTab(prev => ({ ...prev, 'financial-procedures': !prev['financial-procedures'] }))}
@@ -173,7 +173,7 @@ const ProjectFullDetails = () => {
             {/* Data Display Section */}
             <div>
                 <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold">قائمة المواقف المالية</h3>
+                    <h3 className="text-lg font-semibold">سجل الموقف المالي</h3>
                     <Button
                         size="sm"
                         onClick={() => setShowFormTab(prev => ({ ...prev, 'financial-status': !prev['financial-status'] }))}
@@ -262,7 +262,7 @@ const ProjectFullDetails = () => {
             {/* Data Display Section */}
             <div>
                 <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold">قائمة الإجراءات</h3>
+                    <h3 className="text-lg font-semibold">عروض الشركات والإجراءات الفنية</h3>
                     <Button
                         size="sm"
                         onClick={() => setShowFormTab(prev => ({ ...prev, 'procedures': !prev['procedures'] }))}
@@ -328,7 +328,7 @@ const ProjectFullDetails = () => {
     return (
         <div>
             <div className="flex justify-between items-center mb-6">
-                <PageTitle title="تفاصيل المشروع الكاملة" />
+                <PageTitle title="المشروع" />
                 <Button variant="secondary" onClick={() => navigate(-1)}>
                     العودة
                 </Button>
@@ -345,37 +345,37 @@ const ProjectFullDetails = () => {
                             <div>
                                 {renderDetailItem('كود المشروع', project.projectCode)}
                                 {renderDetailItem('اسم المشروع', project.projectName)}
-                                {renderDetailItem('السنة المالية', project.financialYear)}
-                                {renderDetailItem('نوع المشروع', project.projectType)}
+                                {renderDetailItem('العام المالي', project.financialYear)}
+                                {renderDetailItem('كود نوع المشروع', project.projectTypeCode || project.projectType)}
                             </div>
                             <div>
-                                {renderDetailItem('طريقة التعاقد', project.contractingMethod)}
-                                {renderDetailItem('جهة المالك', project.ownerEntity)}
-                                {renderDetailItem('الفرع المسئول', project.responsibleBranch)}
-                                {renderDetailItem('الموظف المسئول', project.responsibleEmployee)}
+                                {renderDetailItem('اسلوب النشر والتعاقد', project.publicationMethod || project.contractingMethod)}
+                                {renderDetailItem('الجهة الطالبة', project.requestingEntity || project.ownerEntity)}
+                                {renderDetailItem('الفرع المسؤول', project.responsibleBranch)}
+                                {renderDetailItem('الموظف المسؤول', project.responsibleEmployeeId || project.responsibleEmployee)}
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                             <div>
-                                {renderDetailItem('التكلفة المقدرة', project.estimatedCost ? project.estimatedCost.toLocaleString('ar-EG') : '-')}
-                                {renderDetailItem('نسبة التكلفة %', project.costPercentage)}
-                                {renderDetailItem('كود الخزانة', project.treasuryCode)}
+                                {renderDetailItem('التكلفة التقديرية', project.estimatedCost ? project.estimatedCost.toLocaleString('ar-EG') : '-')}
+                                {renderDetailItem('نسبة العلاوة', project.premiumRate)}
+                                {renderDetailItem('رقم تذكرة الفرع المالي', project.branchMemoNumber)}
                             </div>
                             <div>
                                 {renderDetailItem('تاريخ الإصدار', project.issueDate ? new Date(project.issueDate).toLocaleDateString('ar-EG') : '-')}
-                                {renderDetailItem('تاريخ الانتهاء من الموقع', project.siteExitDate ? new Date(project.siteExitDate).toLocaleDateString('ar-EG') : '-')}
+                                {renderDetailItem('تاريخ ورود الكارت', project.cartArrivalDate ? new Date(project.cartArrivalDate).toLocaleDateString('ar-EG') : '-')}
                                 {renderDetailItem('تاريخ البداية الفعلي', project.actualStartDate ? new Date(project.actualStartDate).toLocaleDateString('ar-EG') : '-')}
                                 {renderDetailItem('تاريخ النهاية الفعلي', project.actualEndDate ? new Date(project.actualEndDate).toLocaleDateString('ar-EG') : '-')}
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                             <div>
-                                {renderDetailItem('تاريخ الفتح', project.openingDate ? new Date(project.openingDate).toLocaleDateString('ar-EG') : '-')}
+                                {renderDetailItem('تاريخ الفتح الفعلي', project.actualOpeningDate ? new Date(project.actualOpeningDate).toLocaleDateString('ar-EG') : '-')}
                                 {renderDetailItem('تاريخ النشر', project.publicationDate ? new Date(project.publicationDate).toLocaleDateString('ar-EG') : '-')}
                             </div>
                             <div>
-                                {renderDetailItem('الشركة', project.company)}
-                                {renderDetailItem('المشروع الرئيسي', project.mainProject)}
+                                {renderDetailItem('اسم الشركة', project.company)}
+                                {renderDetailItem('المشروع الرئيسي', project.mainProjectCode || project.mainProject)}
                             </div>
                         </div>
                     </div>

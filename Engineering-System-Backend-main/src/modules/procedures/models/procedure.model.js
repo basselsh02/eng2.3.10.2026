@@ -35,6 +35,12 @@ const procedureSchema = new mongoose.Schema({
         conditions: {
             type: String
         },
+        additionalConditions: {
+            type: String
+        },
+        sequentialOrder: {
+            type: Number
+        },
         offerPurpose: {
             type: String
         },

@@ -12,11 +12,15 @@ import toast from "react-hot-toast";
 export default function CreateFinancialProcedureForm({ onSuccess }) {
   const { register, handleSubmit, control, watch, formState: { errors } } = useForm({
     defaultValues: {
-      procedureType: "offers"
+      procedureType: "offers",
+      financialOffers: { quantity: 0, unitPrice: 0 }
     }
   });
 
   const procedureType = watch("procedureType");
+  const quantity = Number(watch("financialOffers.quantity")) || 0;
+  const unitPrice = Number(watch("financialOffers.unitPrice")) || 0;
+  const computedTotal = quantity * unitPrice;
 
   // Fetch projects for select dropdown
   const { data: projectsData } = useQuery({
@@ -116,7 +120,7 @@ export default function CreateFinancialProcedureForm({ onSuccess }) {
             <FormDatePicker
               name="financialOffers.offerStartDate"
               control={control}
-              label="تاريخ بداية العرض"
+              label="تاريخ العرض"
             />
             
             <FormDatePicker
@@ -125,6 +129,19 @@ export default function CreateFinancialProcedureForm({ onSuccess }) {
               label="تاريخ نهاية العرض"
             />
           </div>
+          <Input
+            type="number"
+            {...register("financialOffers.sequentialOrder")}
+            label="الترتيب المسلسل"
+            error={errors.financialOffers?.sequentialOrder}
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Input type="number" {...register("financialOffers.quantity")} label="الكمية" />
+            <Input type="number" step="0.001" {...register("financialOffers.unitPrice")} label="سعر الوحدة" />
+            <Input type="number" value={computedTotal} label="الاجمالي" disabled readOnly />
+          </div>
+
         </div>
       )}
 

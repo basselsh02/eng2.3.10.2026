@@ -61,7 +61,8 @@ export default function CreateFinancialStatusForm({ onSuccess }) {
                   setValue("projectDescription", selected.projectName || "");
                   setValue("branch", selected.responsibleBranch || "");
                   setValue("beneficiaryEntity", selected.ownerEntity || "");
-                  setValue("companyName", selected.company || "");
+                  setValue("companyName", selected.companyName || selected.company || "");
+                  setValue("portal", selected.portal || "");
                 }
               }}
               label="رقم المشروع"
@@ -73,8 +74,11 @@ export default function CreateFinancialStatusForm({ onSuccess }) {
         />
 
         <Input {...register("projectType")} label="نوع المشروع" disabled />
-        <Input {...register("financialYear", { required: "العام المالي مطلوب" })} label="العام المالي" error={errors.financialYear} />
-        <Input {...register("projectDescription")} label="وصف المشروع" />
+        <Input type="select" {...register("financialYear", { required: "العام المالي مطلوب" })} label="العام المالي" error={errors.financialYear} options={[{ value: "", label: "اختر العام المالي" }, { value: "2026/2025", label: "2026/2025" }, { value: "2025/2024", label: "2025/2024" }]} />
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">وصف المشروع</label>
+          <textarea {...register("projectDescription")} rows={3} readOnly className="block w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50" />
+        </div>
 
         <FormDatePicker name="startDate" control={control} label="تاريخ البداية" />
         <FormDatePicker name="endDate" control={control} label="تاريخ النهاية" />
@@ -90,7 +94,7 @@ export default function CreateFinancialStatusForm({ onSuccess }) {
         <Input {...register("responsibleEmployee")} label="اسم الموظف" />
         <Input {...register("beneficiaryEntity")} label="الجهة المستفيدة" disabled />
         <Input {...register("companyName")} label="اسم الشركة" disabled />
-        <Input {...register("portal")} label="البوابة" />
+        <Input {...register("portal")} label="البوابة" disabled />
 
         <FormDatePicker name="actualOpeningDate" control={control} label="تاريخ الفتح الفعلي" />
         <Input type="number" {...register("responsibleEmployeeNumber")} label="الموظف المسؤول" />
@@ -101,7 +105,7 @@ export default function CreateFinancialStatusForm({ onSuccess }) {
         <Input {...register("latestStatus")} label="اخر موقف" />
       </div>
 
-      <div>
+      <div className="md:col-span-2">
         <label className="block text-sm font-medium text-gray-700 mb-2">ملاحظات</label>
         <textarea
           {...register("notes")}

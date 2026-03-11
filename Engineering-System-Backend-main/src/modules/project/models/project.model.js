@@ -14,6 +14,9 @@ const projectSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    projectTypeCode: {
+        type: String
+    },
     projectName: {
         type: String,
         required: true
@@ -21,10 +24,16 @@ const projectSchema = new mongoose.Schema({
     contractingMethod: {
         type: String
     },
+    publicationMethod: {
+        type: String
+    },
     issueDate: {
         type: Date
     },
     siteExitDate: {
+        type: Date
+    },
+    cartArrivalDate: {
         type: Date
     },
     actualStartDate: {
@@ -45,6 +54,12 @@ const projectSchema = new mongoose.Schema({
     treasuryCode: {
         type: String
     },
+    branchMemoNumber: {
+        type: Number
+    },
+    premiumRate: {
+        type: Number
+    },
     responsibleBranch: {
         type: String
     },
@@ -54,13 +69,22 @@ const projectSchema = new mongoose.Schema({
     responsibleEmployee: {
         type: String
     },
+    responsibleEmployeeId: {
+        type: Number
+    },
     openingDate: {
+        type: Date
+    },
+    actualOpeningDate: {
         type: Date
     },
     publicationDate: {
         type: Date
     },
     mainProject: {
+        type: String
+    },
+    mainProjectCode: {
         type: String
     },
     conditions: [{
