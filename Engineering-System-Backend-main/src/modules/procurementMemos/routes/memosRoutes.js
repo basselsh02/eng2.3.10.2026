@@ -1,68 +1,55 @@
-import express from "express";
-import { protect } from "../../../middleware/auth.middleware.js";
-import {
-    getMemos,
-    getMemoById,
-    createMemo,
-    updateMemo,
-    getCompanyOffers,
-    addCompanyOffer,
-    getTechnicalOpeningProcedures,
-    getTechnicalDecisionProcedures,
-    getFinancialOpeningProcedures,
-    triggerAccountingReview,
-    getFinancialDecisionProcedures,
-    registerFinancialWinner,
-    distributeCompanies,
-    getSupplyOrder,
-    printMemoForm,
-} from "../controllers/memosController.js";
-import {
-    getCommitteeMembers,
-    addCommitteeMember,
-} from "../controllers/committeeMembersController.js";
-
+const express = require('express');
 const router = express.Router();
+const memosController = require('./memosController');
+const { authenticate } = require('../middleware/auth'); // Adjust path as needed
 
-// All routes protected
-router.use(protect);
+// Apply authentication middleware to all routes
+router.use(authenticate);
 
-// ── Memo CRUD ─────────────────────────────────────────────────────────────────
-router.route("/").get(getMemos).post(createMemo);
-router.route("/:id").get(getMemoById).patch(updateMemo);
+// ============ MEMO ROUTES ============
+router.get('/memos', memosController.listMemos);
+router.get('/memos/:id', memosController.getMemo);
+router.post('/memos', memosController.createMemo);
+router.patch('/memos/:id', memosController.updateMemo);
+router.delete('/memos/:id', memosController.deleteMemo);
 
-// ── Tab: عروض الشركات ─────────────────────────────────────────────────────────
-router.route("/:id/company-offers").get(getCompanyOffers).post(addCompanyOffer);
+// ============ COMPANY OFFERS ROUTES ============
+router.get('/memos/:id/company-offers', memosController.getCompanyOffers);
+router.post('/memos/:id/company-offers', memosController.createCompanyOffer);
+router.patch('/offers/:id', memosController.updateOffer);
+router.delete('/offers/:id', memosController.deleteOffer);
 
-// ── Tab: اجراءات الفتح الفني ──────────────────────────────────────────────────
-router.get("/:id/opening-procedures", getTechnicalOpeningProcedures);
+// ============ OFFER ITEMS ROUTES ============
+router.get('/offers/:id/item-details', memosController.getOfferItems);
+router.post('/offers/:id/item-details', memosController.upsertOfferItems);
 
-// ── Tab: اجراءات البت الفني ───────────────────────────────────────────────────
-router.get("/:id/decision-procedures", getTechnicalDecisionProcedures);
+// ============ COMMITTEE MEMBERS ROUTES ============
+router.get('/memos/:id/committee-members', memosController.getCommitteeMembers);
+router.post('/memos/:id/committee-members', memosController.addCommitteeMembers);
+router.patch('/committee-members/:id', memosController.updateCommitteeMember);
 
-// ── Tab: اجراءات الفتح المالي ─────────────────────────────────────────────────
-router.get("/:id/financial-opening", getFinancialOpeningProcedures);
-router.post("/:id/accounting-review", triggerAccountingReview);
+// ============ SUPPLY ORDERS ROUTES ============
+router.get('/supply-orders/:id', memosController.getSupplyOrder);
+router.post('/supply-orders', memosController.createSupplyOrder);
+router.patch('/supply-orders/:id', memosController.updateSupplyOrder);
 
-// ── Tab: اجراءات البت المالي ──────────────────────────────────────────────────
-router.get("/:id/financial-decision", getFinancialDecisionProcedures);
-router.post("/:id/register-financial-winner", registerFinancialWinner);
-router.post("/:id/distribute-companies", distributeCompanies);
+// ============ WORKFLOW STAGE ROUTES ============
+router.get('/memo/:id/opening-procedures', memosController.getOpeningProcedures);
+router.get('/memo/:id/decision-procedures', memosController.getDecisionProcedures);
+router.get('/memo/:id/financial-opening', memosController.getFinancialOpening);
+router.get('/memo/:id/financial-decision', memosController.getFinancialDecision);
+router.post('/memo/:id/register-financial-winner', memosController.registerFinancialWinner);
 
-// ── Tab: أمر التوريد ──────────────────────────────────────────────────────────
-router.get("/:id/supply-order", getSupplyOrder);
+// ============ LOOKUP DATA ROUTES ============
+router.get('/committee-types', memosController.getCommitteeTypes);
+router.get('/offer-types', memosController.getOfferTypes);
+router.get('/decision-reasons', memosController.getDecisionReasons);
+router.get('/committee-roles', memosController.getCommitteeRoles);
+router.get('/fiscal-years', memosController.getFiscalYears);
+router.get('/units', memosController.getUnits);
+router.get('/category-groups', memosController.getCategoryGroups);
 
-// ── Committee members (nested under memo) ─────────────────────────────────────
-router
-    .route("/:id/committee-members")
-    .get(getCommitteeMembers)
-    .post(addCommitteeMember);
+// ============ PDF GENERATION ROUTES ============
+router.get('/memo/:id/print/:form', memosController.printForm);
 
-// ── Print forms ───────────────────────────────────────────────────────────────
-// Supported: form-6a, form-6b, form-6c, form-7, form-9, form-10a, form-10b,
-//            form-1a, decision-letter, committee-letter, form-12a, form-12b,
-//            182-12, form-16b-182, technical-opening-request, form-19,
-//            form-19b, form-16b-2, minutes-1, minutes-2, 15-182
-router.get("/:id/print/:form", printMemoForm);
-
-export default router;
+module.exports = router;

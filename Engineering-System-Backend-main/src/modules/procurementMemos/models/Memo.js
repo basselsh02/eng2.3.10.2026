@@ -1,68 +1,104 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const WORKFLOW_STAGES = [
-    "company_offers",
-    "technical_opening",
-    "technical_decision",
-    "financial_opening",
-    "financial_decision",
-    "supply_order",
-    "form19_notes",
-];
+const memoSchema = new Schema({
+  // Document Identity
+  documentType: {
+    type: String,
+    default: 'TRDD_UF',
+    required: true
+  },
+  refNumber: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  fiscalYear: {
+    type: Schema.Types.ObjectId,
+    ref: 'FiscalYear',
+    required: true
+  },
+  
+  // Project Reference
+  projectCode: {
+    type: String,
+    required: true
+  },
+  projects: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Project'
+  }],
+  
+  // Committee Configuration
+  committeeType: {
+    type: Schema.Types.ObjectId,
+    ref: 'CommitteeType',
+    required: true
+  },
+  committeeDate: {
+    type: Date,
+    required: true
+  },
+  committeeStatement: {
+    type: String,
+    default: ''
+  },
+  
+  // Metadata
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  },
+  status: {
+    type: String,
+    enum: ['draft', 'in_progress', 'completed', 'archived'],
+    default: 'draft'
+  },
+  currentStage: {
+    type: String,
+    enum: ['company_offers', 'technical_opening', 'technical_decision', 'financial_opening', 'financial_decision', 'supply_order', 'form_19'],
+    default: 'company_offers'
+  }
+}, {
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+});
 
-const memoSchema = new mongoose.Schema(
-    {
-        refNumber: {
-            type: String,
-            required: [true, "Reference number is required"],
-            trim: true,
-        },
-        documentType: {
-            type: String,
-            trim: true,
-            default: "TRDD_UF",
-        },
-        fiscalYear: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "FiscalYear",
-            default: null,
-        },
-        projectId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Project",
-            default: null,
-        },
-        committeeTypeId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "CommitteeType",
-            default: null,
-        },
-        committeeDate: {
-            type: Date,
-            default: null,
-        },
-        committeeStatement: {
-            type: String,
-            trim: true,
-            maxlength: 500,
-            default: "",
-        },
-        currentStage: {
-            type: String,
-            enum: WORKFLOW_STAGES,
-            default: "company_offers",
-        },
-        financialWinnerId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Company",
-            default: null,
-        },
-        financialWinnerRegisteredAt: {
-            type: Date,
-            default: null,
-        },
-    },
-    { timestamps: true }
-);
+// Virtual for committee members
+memoSchema.virtual('committeeMembers', {
+  ref: 'CommitteeMember',
+  localField: '_id',
+  foreignField: 'memoId'
+});
 
-export default mongoose.model("Memo", memoSchema);
+// Virtual for company offers
+memoSchema.virtual('companyOffers', {
+  ref: 'CompanyOffer',
+  localField: '_id',
+  foreignField: 'memoId'
+});
+
+// Virtual for supply orders
+memoSchema.virtual('supplyOrders', {
+  ref: 'SupplyOrder',
+  localField: '_id',
+  foreignField: 'memoId'
+});
+
+// Indexes for performance
+memoSchema.index({ refNumber: 1 });
+memoSchema.index({ projectCode: 1 });
+memoSchema.index({ createdAt: -1 });
+memoSchema.index({ status: 1, currentStage: 1 });
+
+module.exports = mongoose.model('Memo', memoSchema);

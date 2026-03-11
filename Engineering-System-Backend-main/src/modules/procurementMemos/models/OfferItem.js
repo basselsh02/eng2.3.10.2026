@@ -1,48 +1,105 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const offerItemSchema = new mongoose.Schema(
-    {
-        offerId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Offer",
-            required: [true, "Offer reference is required"],
-        },
-        itemNumber: {
-            type: Number,
-            required: [true, "Item number is required"],
-        },
-        itemCode: { type: String, trim: true, default: "" },
-        itemName: { type: String, trim: true, default: "" },
-        itemNameAsSubmitted: { type: String, trim: true, default: "" },
-        unitId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Unit",
-            default: null,
-        },
-        quantity: { type: Number, default: 0 },
-        referencePrice: { type: Number, default: 0 },
-        unitPrice: { type: Number, default: 0 },
-        discount: { type: Number, default: 0 },
-        // priceAfterDiscount & total: computed in controller — NOT stored
+const offerItemSchema = new Schema({
+  offerId: {
+    type: Schema.Types.ObjectId,
+    ref: 'CompanyOffer',
+    required: true
+  },
+  
+  // Item Identification
+  itemNumber: {
+    type: Number,
+    required: true
+  },
+  itemCode: {
+    type: String,
+    required: true
+  },
+  itemName: {
+    type: String,
+    required: true
+  },
+  
+  // Unit and Quantity
+  unit: {
+    type: Schema.Types.ObjectId,
+    ref: 'Unit',
+    required: true
+  },
+  quantity: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  
+  // Pricing
+  referencePrice: {
+    type: Number,
+    default: 0
+  },
+  unitPrice: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  discount: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  priceAfterDiscount: {
+    type: Number,
+    default: 0
+  },
+  total: {
+    type: Number,
+    default: 0
+  },
+  
+  // Decision
+  decision: {
+    type: String,
+    enum: ['pending', 'accepted', 'rejected', ''],
+    default: 'pending'
+  },
+  decisionReason: {
+    type: Schema.Types.ObjectId,
+    ref: 'DecisionReason'
+  },
+  
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+}, {
+  timestamps: true
+});
 
-        // ── Screen 2: item-level technical decision ─────────────────────────
-        decision: {
-            type: String,
-            enum: ["accepted", "rejected", "not_applicable", ""],
-            default: "",
-        },
-        reasonId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "DecisionReason",
-            default: null,
-        },
+// Pre-save middleware to calculate price after discount and total
+offerItemSchema.pre('save', function(next) {
+  // Calculate price after discount
+  if (this.unitPrice && this.discount) {
+    this.priceAfterDiscount = this.unitPrice - this.discount;
+  } else {
+    this.priceAfterDiscount = this.unitPrice;
+  }
+  
+  // Calculate total
+  if (this.priceAfterDiscount && this.quantity) {
+    this.total = this.priceAfterDiscount * this.quantity;
+  }
+  
+  next();
+});
 
-        // ── Screen 4: item-level financial pricing ──────────────────────────
-        companyPrice: { type: Number, default: 0 },
-        discountAmount: { type: Number, default: 0 },
-        // financialPriceAfterDiscount & financialTotal: computed in controller — NOT stored
-    },
-    { timestamps: true }
-);
+// Indexes
+offerItemSchema.index({ offerId: 1, itemNumber: 1 });
+offerItemSchema.index({ itemCode: 1 });
 
-export default mongoose.model("OfferItem", offerItemSchema);
+module.exports = mongoose.model('OfferItem', offerItemSchema);
