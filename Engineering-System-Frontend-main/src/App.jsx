@@ -58,6 +58,9 @@ import SettlementsFollowupPage from "./components/pages/ProjectCollectionFollowu
 import ReportsPrintPage from "./components/pages/ProjectCollectionFollowup/ReportsPrintPage";
 import ProjectStatusRegisterPage from "./components/pages/ProjectCollectionFollowup/ProjectStatusRegisterPage";
 import SalesTaxFormPage from "./components/pages/ProjectCollectionFollowup/SalesTaxFormPage";
+import ProcurementMemos from "./components/pages/ProcurementMemos/ProcurementMemos";
+
+
 
 const router = createBrowserRouter([
   {
@@ -434,6 +437,10 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <SalesTaxFormPage />
+        path: "procurement/memos",
+        element: (
+          <ProtectedRoute>
+            <ProcurementMemos />
           </ProtectedRoute>
         ),
       },
