@@ -97,6 +97,16 @@ const menu = [
     ],
   },
   {
+    label: "خطابات الضمان",
+    icon: <BiFile className="size-5" />,
+    path: "/guarantee-letters",
+    children: [
+      { label: "متابعة دخول وخروج المستخلصات", path: "/guarantee-letters/claims-tracking" },
+      { label: "التقارير", path: "/guarantee-letters/reports" },
+      { label: "تسجيل خطابات الضمان", path: "/guarantee-letters/register" },
+    ],
+  },
+  {
     label: "بيع الكراسات",
     icon: <BiPackage className="size-5" />,
     path: "/booklet-sales",
