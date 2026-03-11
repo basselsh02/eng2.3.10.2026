@@ -1,6 +1,9 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import "express-async-errors"; // Must be after express
@@ -36,7 +39,23 @@ import financialDeductionRouter from "./src/modules/budgetOffice/routes/financia
 import logger from "./src/utils/logger.js";
 import { protect } from "./src/middleware/auth.middleware.js";
 import { attachSessionId, auditLogger, trackSessionActivity } from "./src/middleware/auditLogger.middleware.js";
-dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const candidateEnvFiles = [
+    path.resolve(process.cwd(), ".env"),
+    path.resolve(__dirname, ".env"),
+    path.resolve(__dirname, "..", ".env"),
+];
+
+for (const envPath of candidateEnvFiles) {
+    if (fs.existsSync(envPath)) {
+        dotenv.config({ path: envPath });
+        break;
+    }
+}
+
 const app = express();
 
 app.use(helmet());

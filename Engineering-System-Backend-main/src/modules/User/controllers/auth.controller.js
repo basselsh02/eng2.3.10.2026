@@ -22,6 +22,10 @@ export const login = catchAsync(async (req, res, next) => {
         return next(new AppError("حسابك محذوف", 401));
     }
 
+    if (!process.env.JWT_SECRET) {
+        return next(new AppError("JWT_SECRET is not configured", 500));
+    }
+
     const token = jwt.sign(
         {
             id: user._id,
@@ -30,7 +34,7 @@ export const login = catchAsync(async (req, res, next) => {
             role: user.role,
         },
         process.env.JWT_SECRET,
-        { expiresIn: process.env.JWT_EXPIRES_IN }
+        { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
     );
 
     // Log login event
