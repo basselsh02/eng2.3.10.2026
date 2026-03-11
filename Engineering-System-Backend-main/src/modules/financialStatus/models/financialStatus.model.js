@@ -18,7 +18,52 @@ const financialStatusSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
+
     projectDescription: {
+        type: String
+    },
+    cardArrivalDate: {
+        type: Date
+    },
+    technicalBroadcastDate: {
+        type: Date
+    },
+    financialBroadcastDate: {
+        type: Date
+    },
+    commitmentValue: {
+        type: Number,
+        default: 0
+    },
+    disbursementValue: {
+        type: Number,
+        default: 0
+    },
+    beneficiaryEntity: {
+        type: String
+    },
+    companyName: {
+        type: String
+    },
+    portal: {
+        type: String
+    },
+    actualOpeningDate: {
+        type: Date
+    },
+    responsibleEmployeeNumber: {
+        type: Number
+    },
+    actualOpeningDate2: {
+        type: Date
+    },
+    letterCode: {
+        type: String
+    },
+    discountItem: {
+        type: String
+    },
+    latestStatus: {
         type: String
     },
     startDate: {
@@ -64,13 +109,10 @@ const financialStatusSchema = new mongoose.Schema({
         eventDate: {
             type: Date
         },
-        branch: {
+        responsibleOffice: {
             type: String
         },
-        office: {
-            type: String
-        },
-        division: {
+        refCode: {
             type: String
         },
         userName: {

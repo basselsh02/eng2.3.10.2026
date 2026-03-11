@@ -10,6 +10,11 @@ router.route("/")
     .post(projectController.createProject)
     .get(projectController.getAllProjects);
 
+
+router.get("/:code/financial-status", projectController.getFinancialStatusByProjectCode);
+router.post("/:code/financial-status", projectController.upsertFinancialStatusByProjectCode);
+router.get("/:code/financial-status/history", projectController.getFinancialStatusHistoryByProjectCode);
+
 router.route("/:id")
     .get(projectController.getProjectById)
     .patch(projectController.updateProject)

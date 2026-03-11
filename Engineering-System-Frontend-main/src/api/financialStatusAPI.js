@@ -1,8 +1,8 @@
 import api from "./axiosInstance";
 
 export const getFinancialStatuses = async ({ page = 1, limit = 10, search = "", projectId = "", status = "", financialYear = "" }) => {
-    const { data } = await api.get("/financial-status", { 
-        params: { page, limit, search, projectId, status, financialYear } 
+    const { data } = await api.get("/financial-status", {
+        params: { page, limit, search, projectId, status, financialYear }
     });
     return data;
 };
@@ -17,8 +17,23 @@ export const getFinancialStatusesByProject = async (projectId) => {
     return data;
 };
 
+export const getFinancialStatusByProjectCode = async (projectCode) => {
+    const { data } = await api.get(`/projects/${projectCode}/financial-status`);
+    return data;
+};
+
 export const createFinancialStatus = async (formData) => {
     const { data } = await api.post("/financial-status", formData);
+    return data;
+};
+
+export const upsertFinancialStatusByProjectCode = async ({ projectCode, ...payload }) => {
+    const { data } = await api.post(`/projects/${projectCode}/financial-status`, payload);
+    return data;
+};
+
+export const getFinancialStatusHistoryByProjectCode = async (projectCode) => {
+    const { data } = await api.get(`/projects/${projectCode}/financial-status/history`);
     return data;
 };
 
