@@ -63,6 +63,8 @@ import GuaranteeLettersHome from "./components/pages/GuaranteeLetters/GuaranteeL
 import ClaimsTrackingPage from "./components/pages/GuaranteeLetters/ClaimsTrackingPage";
 import GuaranteeReportsPage from "./components/pages/GuaranteeLetters/GuaranteeReportsPage";
 import RegisterGuaranteeLettersPage from "./components/pages/GuaranteeLetters/RegisterGuaranteeLettersPage";
+import MaintenanceReports from "./components/pages/Maintenance/MaintenanceReports";
+import CreateMaintenanceReportForm from "./components/pages/Maintenance/CreateMaintenanceReportForm";
 
 
 
@@ -353,6 +355,22 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <TaskActivityReport />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "maintenance-reports",
+        element: (
+          <ProtectedRoute>
+            <MaintenanceReports />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "maintenance-reports/create",
+        element: (
+          <ProtectedRoute>
+            <CreateMaintenanceReportForm />
           </ProtectedRoute>
         ),
       },
