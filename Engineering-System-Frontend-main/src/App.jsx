@@ -59,6 +59,10 @@ import ReportsPrintPage from "./components/pages/ProjectCollectionFollowup/Repor
 import ProjectStatusRegisterPage from "./components/pages/ProjectCollectionFollowup/ProjectStatusRegisterPage";
 import SalesTaxFormPage from "./components/pages/ProjectCollectionFollowup/SalesTaxFormPage";
 import ProcurementMemos from "./components/pages/ProcurementMemos/ProcurementMemos";
+import GuaranteeLettersHome from "./components/pages/GuaranteeLetters/GuaranteeLettersHome";
+import ClaimsTrackingPage from "./components/pages/GuaranteeLetters/ClaimsTrackingPage";
+import GuaranteeReportsPage from "./components/pages/GuaranteeLetters/GuaranteeReportsPage";
+import RegisterGuaranteeLettersPage from "./components/pages/GuaranteeLetters/RegisterGuaranteeLettersPage";
 
 
 
@@ -437,6 +441,38 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <SalesTaxFormPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "guarantee-letters",
+        element: (
+          <ProtectedRoute>
+            <GuaranteeLettersHome />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "guarantee-letters/claims-tracking",
+        element: (
+          <ProtectedRoute>
+            <ClaimsTrackingPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "guarantee-letters/reports",
+        element: (
+          <ProtectedRoute>
+            <GuaranteeReportsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "guarantee-letters/register",
+        element: (
+          <ProtectedRoute>
+            <RegisterGuaranteeLettersPage />
           </ProtectedRoute>
         ),
       },
