@@ -437,6 +437,10 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <SalesTaxFormPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: "procurement/memos",
         element: (
           <ProtectedRoute>
