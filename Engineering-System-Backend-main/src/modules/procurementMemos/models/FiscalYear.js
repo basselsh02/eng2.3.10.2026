@@ -1,16 +1,15 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const fiscalYearSchema = new mongoose.Schema(
-  {
-    yearLabel: {
-      type: String,
-      required: [true, 'Fiscal year label is required'],
-      trim: true,
-      unique: true,
-      // e.g. "2026/2025"
+    {
+        yearLabel: {
+            type: String,
+            required: [true, "Fiscal year label is required"],
+            trim: true,
+            unique: true,
+        },
     },
-  },
-  { timestamps: true }
+    { timestamps: true }
 );
 
-export default mongoose.model('FiscalYear', fiscalYearSchema);
+export default mongoose.model("FiscalYear", fiscalYearSchema);

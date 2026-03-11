@@ -1,20 +1,23 @@
-const express = require('express');
+import express from "express";
+import { protect } from "../../../middleware/auth.middleware.js";
+import {
+    updateOffer,
+    getOfferItems,
+    upsertOfferItems,
+} from "../controllers/offersController.js";
+
 const router = express.Router();
-const protect = require('../middleware/auth'); // existing auth middleware
-const {
-  updateOffer,
-  getOfferItems,
-  upsertOfferItems,
-} = require('../controllers/memosController');
 
-// ─── PATCH /api/offers/:id — update offer (decision, discount, financial values, etc.)
-router.route('/:id').patch(protect, updateOffer);
+router.use(protect);
 
-// ─── GET  /api/offers/:id/item-details — بيان عرض الشركة من الاصناف
-// ─── POST /api/offers/:id/item-details — add/replace offer items
+// PATCH /api/offers/:id
+router.patch("/:id", updateOffer);
+
+// GET  /api/offers/:id/item-details — بيان عرض الشركة من الاصناف
+// POST /api/offers/:id/item-details
 router
-  .route('/:id/item-details')
-  .get(protect, getOfferItems)
-  .post(protect, upsertOfferItems);
+    .route("/:id/item-details")
+    .get(getOfferItems)
+    .post(upsertOfferItems);
 
-module.exports = router;
+export default router;

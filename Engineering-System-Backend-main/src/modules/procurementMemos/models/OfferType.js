@@ -1,15 +1,14 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const offerTypeSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: [true, 'Offer type name is required'],
-      trim: true,
-      unique: true,
+const decisionReasonSchema = new mongoose.Schema(
+    {
+        reasonText: {
+            type: String,
+            required: [true, "Reason text is required"],
+            trim: true,
+        },
     },
-  },
-  { timestamps: true }
+    { timestamps: true }
 );
 
-export default mongoose.model('OfferType', offerTypeSchema);
+export default mongoose.model("DecisionReason", decisionReasonSchema);

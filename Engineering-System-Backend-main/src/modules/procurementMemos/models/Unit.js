@@ -1,19 +1,19 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const unitSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: [true, 'Unit name is required'],
-      trim: true,
+    {
+        name: {
+            type: String,
+            required: [true, "Unit name is required"],
+            trim: true,
+        },
+        symbol: {
+            type: String,
+            trim: true,
+            default: "",
+        },
     },
-    symbol: {
-      type: String,
-      trim: true,
-      default: '',
-    },
-  },
-  { timestamps: true }
+    { timestamps: true }
 );
 
-export default mongoose.model('Unit', unitSchema);
+export default mongoose.model("Unit", unitSchema);

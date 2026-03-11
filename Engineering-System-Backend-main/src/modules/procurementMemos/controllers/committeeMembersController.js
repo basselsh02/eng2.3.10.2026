@@ -1,84 +1,110 @@
-import CommitteeMember from '../models/CommitteeMember';
-import Memo from '../models/Memo';
+import mongoose from "mongoose";
+import CommitteeMember from "../models/CommitteeMember.js";
+import Memo from "../models/Memo.js";
+import { AppError } from "../../../utils/AppError.js";
 
 // ─── GET /api/memos/:id/committee-members ────────────────────────────────────
-export const getCommitteeMembers = async (req, res) => {
-  try {
-    const memo = await Memo.findById(req.params.id);
-    if (!memo) {
-      return res.status(404).json({ success: false, message: 'Memo not found' });
+export const getCommitteeMembers = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return next(new AppError("ID غير صحيح", 400));
+        }
+
+        const memo = await Memo.findById(id);
+        if (!memo) {
+            return next(new AppError("المذكرة غير موجودة", 404));
+        }
+
+        const data = await CommitteeMember.find({ memoId: id })
+            .populate("roleId", "name")
+            .sort({ createdAt: 1 });
+
+        res.json({ success: true, data });
+    } catch (error) {
+        return next(new AppError(error.message, 500));
     }
-
-    const data = await CommitteeMember.find({ memoId: req.params.id })
-      .populate('roleId', 'name')
-      .sort({ createdAt: 1 });
-
-    res.status(200).json({ success: true, data });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
 };
 
 // ─── POST /api/memos/:id/committee-members ───────────────────────────────────
-export const addCommitteeMember = async (req, res) => {
-  try {
-    const memo = await Memo.findById(req.params.id);
-    if (!memo) {
-      return res.status(404).json({ success: false, message: 'Memo not found' });
+export const addCommitteeMember = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return next(new AppError("ID غير صحيح", 400));
+        }
+
+        const memo = await Memo.findById(id);
+        if (!memo) {
+            return next(new AppError("المذكرة غير موجودة", 404));
+        }
+
+        const { name, rank, roleId, isActive, hasSigned } = req.body;
+
+        const member = await CommitteeMember.create({
+            memoId: id,
+            name,
+            rank,
+            roleId,
+            isActive: isActive !== undefined ? isActive : true,
+            hasSigned: hasSigned !== undefined ? hasSigned : false,
+        });
+
+        const populated = await CommitteeMember.findById(member._id).populate(
+            "roleId",
+            "name"
+        );
+
+        res.status(201).json({ success: true, data: populated });
+    } catch (error) {
+        return next(new AppError(error.message, 400));
     }
-
-    const { name, rank, roleId, isActive, hasSigned } = req.body;
-
-    const member = await CommitteeMember.create({
-      memoId: req.params.id,
-      name,
-      rank,
-      roleId,
-      isActive: isActive !== undefined ? isActive : true,
-      hasSigned: hasSigned !== undefined ? hasSigned : false,
-    });
-
-    const populated = await CommitteeMember.findById(member._id).populate('roleId', 'name');
-    res.status(201).json({ success: true, data: populated });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
-  }
 };
 
 // ─── PATCH /api/committee-members/:id ────────────────────────────────────────
-export const updateCommitteeMember = async (req, res) => {
-  try {
-    const allowedFields = ['name', 'rank', 'roleId', 'isActive', 'hasSigned'];
+export const updateCommitteeMember = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return next(new AppError("ID غير صحيح", 400));
+        }
 
-    const updates = {};
-    allowedFields.forEach((field) => {
-      if (req.body[field] !== undefined) updates[field] = req.body[field];
-    });
+        const allowedFields = ["name", "rank", "roleId", "isActive", "hasSigned"];
+        const updates = {};
+        allowedFields.forEach((field) => {
+            if (req.body[field] !== undefined) updates[field] = req.body[field];
+        });
 
-    const member = await CommitteeMember.findByIdAndUpdate(req.params.id, updates, {
-      new: true,
-      runValidators: true,
-    }).populate('roleId', 'name');
+        const member = await CommitteeMember.findByIdAndUpdate(id, updates, {
+            new: true,
+            runValidators: true,
+        }).populate("roleId", "name");
 
-    if (!member) {
-      return res.status(404).json({ success: false, message: 'Committee member not found' });
+        if (!member) {
+            return next(new AppError("عضو اللجنة غير موجود", 404));
+        }
+
+        res.json({ success: true, data: member });
+    } catch (error) {
+        return next(new AppError(error.message, 400));
     }
-
-    res.status(200).json({ success: true, data: member });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
-  }
 };
 
 // ─── DELETE /api/committee-members/:id ───────────────────────────────────────
-export const deleteCommitteeMember = async (req, res) => {
-  try {
-    const member = await CommitteeMember.findByIdAndDelete(req.params.id);
-    if (!member) {
-      return res.status(404).json({ success: false, message: 'Committee member not found' });
+export const deleteCommitteeMember = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return next(new AppError("ID غير صحيح", 400));
+        }
+
+        const member = await CommitteeMember.findByIdAndDelete(id);
+        if (!member) {
+            return next(new AppError("عضو اللجنة غير موجود", 404));
+        }
+
+        res.json({ success: true, message: "تم حذف عضو اللجنة", data: member });
+    } catch (error) {
+        return next(new AppError(error.message, 500));
     }
-    res.status(200).json({ success: true, message: 'Committee member deleted', data: member });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
 };

@@ -1,44 +1,31 @@
-const express = require('express');
+import express from "express";
+import { protect } from "../../../middleware/auth.middleware.js";
+import {
+    getCommitteeTypes,
+    createCommitteeType,
+    getOfferTypes,
+    createOfferType,
+    getDecisionReasons,
+    createDecisionReason,
+    getFiscalYears,
+    createFiscalYear,
+    getProjects,
+    getProjectById,
+    getCompanies,
+    getUnits,
+} from "../controllers/lookupsController.js";
+
 const router = express.Router();
-const protect = require('../middleware/auth'); // existing auth middleware
-const {
-  getCommitteeTypes,
-  createCommitteeType,
-  getOfferTypes,
-  createOfferType,
-  getDecisionReasons,
-  createDecisionReason,
-  getFiscalYears,
-  createFiscalYear,
-  getProjects,
-  getProjectById,
-  getCompanies,
-  getUnits,
-} = require('../controllers/lookupsController');
 
-// Committee types
-router.route('/committee-types').get(protect, getCommitteeTypes).post(protect, createCommitteeType);
+router.use(protect);
 
-// Offer types
-router.route('/offer-types').get(protect, getOfferTypes).post(protect, createOfferType);
+router.route("/committee-types").get(getCommitteeTypes).post(createCommitteeType);
+router.route("/offer-types").get(getOfferTypes).post(createOfferType);
+router.route("/decision-reasons").get(getDecisionReasons).post(createDecisionReason);
+router.route("/fiscal-years").get(getFiscalYears).post(createFiscalYear);
+router.route("/procurement-projects").get(getProjects);
+router.route("/procurement-projects/:id").get(getProjectById);
+router.route("/procurement-companies").get(getCompanies);
+router.route("/units").get(getUnits);
 
-// Decision reasons
-router
-  .route('/decision-reasons')
-  .get(protect, getDecisionReasons)
-  .post(protect, createDecisionReason);
-
-// Fiscal years
-router.route('/fiscal-years').get(protect, getFiscalYears).post(protect, createFiscalYear);
-
-// Projects
-router.route('/projects').get(protect, getProjects);
-router.route('/projects/:id').get(protect, getProjectById);
-
-// Companies
-router.route('/companies').get(protect, getCompanies);
-
-// Units
-router.route('/units').get(protect, getUnits);
-
-module.exports = router;
+export default router;

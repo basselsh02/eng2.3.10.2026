@@ -1,24 +1,24 @@
-const express = require('express');
+import express from "express";
+import { protect } from "../../../middleware/auth.middleware.js";
+import {
+    getSupplyOrderById,
+    createSupplyOrder,
+    printSupplyOrderForm,
+} from "../controllers/supplyOrdersController.js";
+
 const router = express.Router();
-const protect = require('../middleware/auth'); // existing auth middleware
-const {
-  getSupplyOrderById,
-  createSupplyOrder,
-  printSupplyOrderForm,
-} = require('../controllers/supplyOrdersController');
 
-const {
-  updateCommitteeMember,
-  deleteCommitteeMember,
-} = require('../controllers/committeeMembersController');
+router.use(protect);
 
-// ─── Supply order CRUD ────────────────────────────────────────────────────────
-router.route('/').post(protect, createSupplyOrder);
-router.route('/:id').get(protect, getSupplyOrderById);
+// POST /api/supply-orders
+router.post("/", createSupplyOrder);
 
-// ─── Print forms for supply orders ───────────────────────────────────────────
-// Handles: print, form-19-1b, form-1b-1, treasury-report, size-report,
-//          deductions-minutes
-router.route('/:id/:form').get(protect, printSupplyOrderForm);
+// GET /api/supply-orders/:id
+router.get("/:id", getSupplyOrderById);
 
-module.exports = router;
+// GET /api/supply-orders/:id/:form
+// Supported: print, form-19-1b, form-1b-1, treasury-report,
+//            size-report, deductions-minutes
+router.get("/:id/:form", printSupplyOrderForm);
+
+export default router;

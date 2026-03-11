@@ -1,15 +1,19 @@
-const express = require('express');
+import express from "express";
+import { protect } from "../../../middleware/auth.middleware.js";
+import {
+    updateCommitteeMember,
+    deleteCommitteeMember,
+} from "../controllers/committeeMembersController.js";
+
 const router = express.Router();
-const protect = require('../middleware/auth'); // existing auth middleware
-const {
-  updateCommitteeMember,
-  deleteCommitteeMember,
-} = require('../controllers/committeeMembersController');
 
-// ─── Standalone member update / delete by member ObjectId ────────────────────
+router.use(protect);
+
+// PATCH /api/committee-members/:id
+// DELETE /api/committee-members/:id
 router
-  .route('/:id')
-  .patch(protect, updateCommitteeMember)
-  .delete(protect, deleteCommitteeMember);
+    .route("/:id")
+    .patch(updateCommitteeMember)
+    .delete(deleteCommitteeMember);
 
-module.exports = router;
+export default router;
