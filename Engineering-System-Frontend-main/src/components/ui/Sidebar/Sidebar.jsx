@@ -6,8 +6,8 @@ import {
   BiPackage,
   BiFile,
 } from "react-icons/bi";
-import { FaProjectDiagram, FaUser, FaBoxes } from "react-icons/fa";
-import { MdEmail, MdSend, MdDashboard } from "react-icons/md";
+import { FaProjectDiagram, FaUser } from "react-icons/fa";
+import { MdDashboard } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 import Button from "../Button/Button";
@@ -84,6 +84,17 @@ const menu = [
     label: "التحصيلات",
     icon: <FaFileInvoiceDollar className="size-5" />,
     path: "/collections",
+  },
+  {
+    label: "متابعة التحصيل للمشروعات",
+    icon: <MdDashboard className="size-5" />,
+    path: "/project-collection-followup",
+    children: [
+      { label: "متابعة التسويات", path: "/project-collection-followup/settlements" },
+      { label: "طباعة التقارير", path: "/project-collection-followup/reports" },
+      { label: "تسجيل الموقف الحالي", path: "/project-collection-followup/project-status/1" },
+      { label: "نموذج ضريبة المبيعات", path: "/project-collection-followup/sales-tax/1" },
+    ],
   },
   {
     label: "بيع الكراسات",

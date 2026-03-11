@@ -23,7 +23,6 @@ import UpdateUser from "./components/pages/User/UpdateUser";
 import OrganizationUnits from "./components/pages/OrganizationUnits/OrganizationUnits";
 import AddOrganizationUnits from "./components/pages/OrganizationUnits/AddOrganizationUnits";
 import SpecificUser from "./components/pages/User/SpecificUser";
-import ProjectDetails from "./components/pages/Project/ProjectDetails";
 import Company from "./components/pages/Company/Company";
 import AddCompany from "./components/pages/Company/AddCompany";
 import FinancialRegistration from "./components/pages/BillOfQuantities/FinancialRegistration";
@@ -54,6 +53,11 @@ import BudgetProjects from "./components/pages/BudgetOffice/BudgetProjects";
 import BudgetProjectDetail from "./components/pages/BudgetOffice/ProjectDetail/index";
 import ProjectsData from "./components/pages/PublishingOffice/ProjectsData/index";
 import ProjectsDetails from "./components/pages/PublishingOffice/ProjectsDetails";
+import ProjectCollectionFollowupHome from "./components/pages/ProjectCollectionFollowup/ProjectCollectionFollowupHome";
+import SettlementsFollowupPage from "./components/pages/ProjectCollectionFollowup/SettlementsFollowupPage";
+import ReportsPrintPage from "./components/pages/ProjectCollectionFollowup/ReportsPrintPage";
+import ProjectStatusRegisterPage from "./components/pages/ProjectCollectionFollowup/ProjectStatusRegisterPage";
+import SalesTaxFormPage from "./components/pages/ProjectCollectionFollowup/SalesTaxFormPage";
 import ProcurementMemos from "./components/pages/ProcurementMemos/ProcurementMemos";
 
 
@@ -100,7 +104,7 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-            {
+      {
         path: "/projects",
         element: (
           <ProtectedRoute>
@@ -397,6 +401,42 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "project-collection-followup",
+        element: (
+          <ProtectedRoute>
+            <ProjectCollectionFollowupHome />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "project-collection-followup/settlements",
+        element: (
+          <ProtectedRoute>
+            <SettlementsFollowupPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "project-collection-followup/reports",
+        element: (
+          <ProtectedRoute>
+            <ReportsPrintPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "project-collection-followup/project-status/:id",
+        element: (
+          <ProtectedRoute>
+            <ProjectStatusRegisterPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "project-collection-followup/sales-tax/:projectId",
+        element: (
+          <ProtectedRoute>
+            <SalesTaxFormPage />
         path: "procurement/memos",
         element: (
           <ProtectedRoute>
