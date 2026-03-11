@@ -123,7 +123,6 @@ workflowSchema.pre("save", function (next) {
 });
 
 // Indexes for better performance
-workflowSchema.index({ processId: 1 });
 workflowSchema.index({ processType: 1 });
 workflowSchema.index({ createdBy: 1 });
 workflowSchema.index({ isActive: 1 });

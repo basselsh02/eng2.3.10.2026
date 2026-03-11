@@ -64,8 +64,6 @@ const officeSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Indexes for better performance
-officeSchema.index({ name: 1 });
-officeSchema.index({ code: 1 });
 officeSchema.index({ type: 1 });
 officeSchema.index({ managerId: 1 });
 officeSchema.index({ isActive: 1 });
