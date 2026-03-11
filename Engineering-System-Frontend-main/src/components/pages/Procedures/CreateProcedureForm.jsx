@@ -13,7 +13,7 @@ export default function CreateProcedureForm({ onSuccess }) {
   const { register, handleSubmit, control, watch, formState: { errors } } = useForm({
     defaultValues: {
       procedureType: "company_offers",
-      companyOffers: [],
+      companyOffers: [{ additionalConditions: "" }],
       committeeData: [],
       technicalProcedures: []
     }
@@ -114,6 +114,13 @@ export default function CreateProcedureForm({ onSuccess }) {
             label="رقم العرض"
             error={errors.companyOffers?.[0]?.offerNumber}
           />
+
+          <Input
+            type="number"
+            {...register("companyOffers.0.sequentialOrder")}
+            label="الترتيب المسلسل"
+            error={errors.companyOffers?.[0]?.sequentialOrder}
+          />
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormDatePicker
@@ -125,14 +132,14 @@ export default function CreateProcedureForm({ onSuccess }) {
             <FormDatePicker
               name="companyOffers.0.offerEndDate"
               control={control}
-              label="تاريخ انتهاء العرض"
+              label="تاريخ نهاية العرض"
             />
           </div>
           
           <Input
-            {...register("companyOffers.0.conditions")}
-            label="الشروط"
-            error={errors.companyOffers?.[0]?.conditions}
+            {...register("companyOffers.0.additionalConditions")}
+            label="الشروط الاضافية"
+            error={errors.companyOffers?.[0]?.additionalConditions}
           />
         </div>
       )}

@@ -2,6 +2,7 @@ import Procedure from "../models/procedure.model.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { AppError } from "../../../utils/AppError.js";
 import { buildFilters } from "../../../utils/buildFilters.js";
+import projectModel from "../../project/models/project.model.js";
 
 // Create a new Procedure
 export const createProcedure = catchAsync(async (req, res, next) => {
@@ -125,5 +126,51 @@ export const getProceduresByProject = catchAsync(async (req, res, next) => {
     res.status(200).json({
         success: true,
         data: procedures
+    });
+});
+
+
+// Get company offers on procedures page by project code
+export const getProcedureCompanyOffersByProjectCode = catchAsync(async (req, res, next) => {
+    const { code } = req.params;
+
+    const project = await projectModel.findOne({ projectCode: code }).select("_id projectCode projectName financialYear");
+    if (!project) {
+        return next(new AppError("المشروع غير موجود", 404));
+    }
+
+    const offers = await Procedure.find({
+        project: project._id,
+        procedureType: "company_offers"
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+        success: true,
+        data: { project, offers }
+    });
+});
+
+// Update company offers by offer/procedure id
+export const updateProcedureCompanyOffer = catchAsync(async (req, res, next) => {
+    const { code, offerId } = req.params;
+
+    const project = await projectModel.findOne({ projectCode: code }).select("_id");
+    if (!project) {
+        return next(new AppError("المشروع غير موجود", 404));
+    }
+
+    const updated = await Procedure.findOneAndUpdate(
+        { _id: offerId, project: project._id, procedureType: "company_offers" },
+        req.body,
+        { new: true, runValidators: true }
+    ).populate("project", "projectName projectCode financialYear");
+
+    if (!updated) {
+        return next(new AppError("العرض غير موجود", 404));
+    }
+
+    res.status(200).json({
+        success: true,
+        data: updated
     });
 });

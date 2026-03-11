@@ -2,7 +2,15 @@ import React from "react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../../ui/Table/Table";
 
 export default function WorkItemsTab({ workItems = [] }) {
-  const totalValue = workItems.reduce((sum, item) => sum + (Number(item.value) || 0), 0);
+  const getItemTotal = (item) => {
+    if (Number.isFinite(Number(item.total)) && Number(item.total) > 0) {
+      return Number(item.total);
+    }
+
+    return (Number(item.quantity) || 0) * (Number(item.value) || 0);
+  };
+
+  const totalValue = workItems.reduce((sum, item) => sum + getItemTotal(item), 0);
 
   return (
     <div className="space-y-4">
@@ -37,13 +45,13 @@ export default function WorkItemsTab({ workItems = [] }) {
                 <TableRow key={index}>
                   <TableCell>{item.serial || index + 1}</TableCell>
                   <TableCell className="font-semibold">
-                    {item.total?.toLocaleString("ar-EG") || "0"}
+                    {getItemTotal(item).toLocaleString("ar-EG")}
                   </TableCell>
                   <TableCell>{item.value?.toLocaleString("ar-EG") || "0"}</TableCell>
                   <TableCell>{item.quantity || "0"}</TableCell>
                   <TableCell>{item.unit || "-"}</TableCell>
-                  <TableCell>{item.code || "-"}</TableCell>
-                  <TableCell className="max-w-md">{item.desc || "-"}</TableCell>
+                  <TableCell>{item.code || item.itemCode || "-"}</TableCell>
+                  <TableCell className="max-w-md">{item.desc || item.description || "-"}</TableCell>
                 </TableRow>
               ))
             ) : (
