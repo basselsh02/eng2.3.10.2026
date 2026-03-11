@@ -54,6 +54,7 @@ import BudgetProjects from "./components/pages/BudgetOffice/BudgetProjects";
 import BudgetProjectDetail from "./components/pages/BudgetOffice/ProjectDetail/index";
 import ProjectsData from "./components/pages/PublishingOffice/ProjectsData/index";
 import ProjectsDetails from "./components/pages/PublishingOffice/ProjectsDetails";
+import ProcurementMemos from "./components/pages/ProcurementMemos/ProcurementMemos";
 
 
 
@@ -392,6 +393,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <BudgetProjectDetail />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "procurement/memos",
+        element: (
+          <ProtectedRoute>
+            <ProcurementMemos />
           </ProtectedRoute>
         ),
       },
