@@ -32,6 +32,7 @@ import projectPublicationRouter from "./src/modules/projectPublication/routes/pr
 import collectionRouter from "./src/modules/collections/routes/collection.routes.js";
 import bookletSaleRouter from "./src/modules/bookletSales/routes/bookletSale.routes.js";
 import publicationMemoRouter from "./src/modules/publicationMemos/routes/publicationMemo.routes.js";
+import maintenanceReportRouter from "./src/modules/maintenanceReports/routes/maintenanceReport.routes.js";
 import auditLogRouter from "./src/modules/auditLog/routes/auditLog.routes.js";
 import workflowActivityRouter from "./src/modules/workflow/routes/workflowActivity.routes.js";
 import contractBudgetStatementRouter from "./src/modules/budgetOffice/routes/contractBudgetStatement.route.js";
@@ -113,6 +114,7 @@ app.use("/api/project-publications", protect, trackSessionActivity, auditLogger,
 app.use("/api/collections", protect, trackSessionActivity, auditLogger, collectionRouter);
 app.use("/api/booklet-sales", protect, trackSessionActivity, auditLogger, bookletSaleRouter);
 app.use("/api/publication-memos", protect, trackSessionActivity, auditLogger, publicationMemoRouter);
+app.use("/api/maintenance-reports", protect, trackSessionActivity, auditLogger, maintenanceReportRouter);
 app.use("/api/audit-logs", protect, auditLogRouter);
 app.use("/api/workflow-activity", protect, workflowActivityRouter);
 app.use("/api/contract-budget-statements", protect, trackSessionActivity, auditLogger, contractBudgetStatementRouter);

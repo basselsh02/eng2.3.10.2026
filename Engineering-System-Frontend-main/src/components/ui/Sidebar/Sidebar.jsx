@@ -117,6 +117,11 @@ const menu = [
     path: "/publication-memos",
   },
   {
+    label: "تقارير الصيانة",
+    icon: <BiFile className="size-5" />,
+    path: "/maintenance-reports",
+  },
+  {
     label: "الملف الشخصي",
     icon: <FaUser className="size-5" />,
     path: "/profile",
