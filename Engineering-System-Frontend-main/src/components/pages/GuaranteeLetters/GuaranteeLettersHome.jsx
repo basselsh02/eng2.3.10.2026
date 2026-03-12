@@ -3,8 +3,16 @@ import { Link } from "react-router-dom";
 import Button from "../../ui/Button/Button";
 import Card from "../../ui/Card/Card";
 import GuaranteeModuleHeader from "./GuaranteeModuleHeader";
+import { useFFData } from "../../../hooks/useFFData";
+import { getFFExtracts, getFFContracts } from "../../../services/ffApi";
 
 export default function GuaranteeLettersHome() {
+  const { loading, error } = useFFData(getFFExtracts, {}, []);
+  useFFData(getFFContracts, {}, []);
+
+  if (loading) return <div>جاري التحميل...</div>;
+  if (error) return <div>{error}</div>;
+
   return (
     <div className="space-y-4" dir="rtl">
       <GuaranteeModuleHeader title="خطابات الضمان" />

@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { useFFData } from "../../../hooks/useFFData";
+import { getFFProcurements } from "../../../services/ffApi";
 import { FaBell, FaSearch, FaTimes } from "react-icons/fa";
 import Button from "../../ui/Button/Button";
 import Input from "../../ui/Input/Input";
@@ -20,8 +22,6 @@ import {
   fiscalYearOptions,
   getActionButtons,
   offerItems,
-  offers,
-  projects,
   reasonOptions,
   supplyItems,
   tabs,
@@ -66,6 +66,34 @@ export default function ProcurementMemos() {
   const [activeTab, setActiveTab] = useState("company-offers");
 
   const actionButtons = useMemo(() => getActionButtons(activeTab), [activeTab]);
+  const { data: procurements, loading, error } = useFFData(getFFProcurements, {}, []);
+
+  if (loading) return <div>جاري التحميل...</div>;
+  if (error) return <div>{error}</div>;
+
+  const projects = (procurements || []).map((item, index) => ({
+    id: item._id || index,
+    code: item.project?.code || item.approvalCode || "-",
+    name: item.project?.name || item.name || "-",
+    totalCost: item.value ? item.value.toLocaleString("ar-EG") : "-",
+    branchCode: item.company?._id || item.companyName || "-",
+    branchName: item.company?.companyName || item.companyName || "-",
+  }));
+
+  const offers = (procurements || []).map((item, index) => ({
+    sequence: index + 1,
+    companyCode: item.company?._id || item.companyName || "-",
+    companyName: item.company?.companyName || item.companyName || "-",
+    offerType: item.procurementType || "-",
+    securityApproval: item.securityApprovalCode || "-",
+    bidBond: item.value || "-",
+    bidBondDate: item.createdAt ? new Date(item.createdAt).toLocaleDateString("ar-EG") : "-",
+    documentCount: item.quantity || "-",
+    documentType: item.category || "-",
+    isVerified: !!item.isContracted,
+    hasSigned: !!item.mainCompletion,
+    decisionDate: item.createdAt ? new Date(item.createdAt).toLocaleDateString("ar-EG") : "-",
+  }));
 
   const committeeColumns = [
     { key: "rank", label: "الرتبة" },

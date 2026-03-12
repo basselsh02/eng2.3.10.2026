@@ -4,8 +4,15 @@ import Button from "../../ui/Button/Button";
 import Card from "../../ui/Card/Card";
 import ModuleHeader from "./ModuleHeader";
 import { arabicDate } from "./mockData";
+import { useFFData } from "../../../hooks/useFFData";
+import { getFFProcurements } from "../../../services/ffApi";
 
 export default function ProjectCollectionFollowupHome() {
+  const { loading, error } = useFFData(getFFProcurements, {}, []);
+
+  if (loading) return <div>جاري التحميل...</div>;
+  if (error) return <div>{error}</div>;
+
   return (
     <div dir="rtl" className="space-y-4">
       <ModuleHeader code="MODULE" dateLabel={arabicDate} title="متابعة التحصيل للمشروعات" />

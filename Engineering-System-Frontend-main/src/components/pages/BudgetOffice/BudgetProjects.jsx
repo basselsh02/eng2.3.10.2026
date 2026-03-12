@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { getContractBudgetStatements } from "../../../api/contractBudgetStatementAPI";
-import { getFinancialDeductions } from "../../../api/financialDeductionAPI";
+import { useFFData } from "../../../hooks/useFFData";
+import { getFFProjects, getFFContracts, getFFExtracts } from "../../../services/ffApi";
 import PageTitle from "../../ui/PageTitle/PageTitle";
 import Button from "../../ui/Button/Button";
 import Input from "../../ui/Input/Input";
@@ -17,18 +16,9 @@ export default function BudgetProjects() {
   const search = searchParams.get("search") || "";
   const [searchInput, setSearchInput] = useState(search);
 
-  // Fetch contract budget statements
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["contractBudgetStatements", page, search],
-    queryFn: () => getContractBudgetStatements({ page, limit: 10, search }),
-    keepPreviousData: true,
-  });
-
-  // Fetch all financial deductions for counting
-  const { data: deductionsData } = useQuery({
-    queryKey: ["financialDeductionsAll"],
-    queryFn: () => getFinancialDeductions({ limit: 1000 }),
-  });
+  const { data: projects } = useFFData(getFFProjects, { search }, [search]);
+  const { data: contracts } = useFFData(getFFContracts, {}, []);
+  const { data: extracts, loading, error } = useFFData(getFFExtracts, {}, []);
 
   const handleSearch = () => {
     const next = searchInput.trim();
@@ -54,29 +44,24 @@ export default function BudgetProjects() {
     navigate(`/budget-office/projects/${projectId}`);
   };
 
-  if (isLoading) return <Loading />;
+  if (loading) return <Loading />;
 
   if (error) {
     return (
       <div className="text-center py-8">
         <p className="text-red-600">حدث خطأ أثناء تحميل البيانات</p>
-        <p className="text-gray-600">{error.response?.data?.message || error.message}</p>
+        <p className="text-gray-600">{error}</p>
       </div>
     );
   }
 
-  // Debug logging
-  console.log("Budget Office API Response:", data);
-  console.log("Statements array:", data?.data);
-  console.log("Pagination:", data?.pagination);
+  const statements = projects || [];
+  const totalPages = Math.max(1, Math.ceil(statements.length / 10));
+  const paginatedStatements = statements.slice((page - 1) * 10, page * 10);
 
-  const statements = data?.data || [];
-  const totalPages = data?.pagination?.totalPages || 1;
-
-  // Count deductions for each project
-  const getProjectDeductionsCount = (projectId) => {
-    const deductions = deductionsData?.data || [];
-    return deductions.filter(d => d.project?._id === projectId || d.project === projectId).length;
+  const getProjectDeductionsCount = (projectName) => {
+    const projectExtracts = (extracts || []).filter((item) => item.projectName === projectName);
+    return projectExtracts.length;
   };
 
   return (
@@ -115,20 +100,24 @@ export default function BudgetProjects() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {statements.length > 0 ? (
-              statements.map((statement) => {
-                const deductionsCount = getProjectDeductionsCount(statement.project?._id);
-                const contractValue = statement.contractualData?.contractValue || 0;
-                const totalDisbursed = statement.disbursementData?.totalDisbursed || 0;
-                const remainingBudget = statement.disbursementData?.remainingBudget || 0;
-                
+            {paginatedStatements.length > 0 ? (
+              paginatedStatements.map((statement) => {
+                const projectContracts = (contracts || []).filter(
+                  (contract) => contract.projectName === statement.name
+                );
+                const firstContract = projectContracts[0] || {};
+                const deductionsCount = getProjectDeductionsCount(statement.name);
+                const contractValue = firstContract.contractValue || statement.estimatedCost?.value || 0;
+                const totalDisbursed = firstContract.totalDisbursed || 0;
+                const remainingBudget = firstContract.remainingValue || 0;
+
                 return (
                   <TableRow key={statement._id}>
                     <TableCell>
                       <Button
                         size="sm"
                         variant="primary"
-                        onClick={() => handleViewDetails(statement.project?._id)}
+                        onClick={() => handleViewDetails(statement._id)}
                       >
                         عرض التفاصيل
                       </Button>
@@ -147,12 +136,12 @@ export default function BudgetProjects() {
                     <TableCell className="font-semibold text-blue-600">
                       {contractValue ? contractValue.toLocaleString('ar-EG') : "-"}
                     </TableCell>
-                    <TableCell>{statement.contractualData?.contractorName || "-"}</TableCell>
+                    <TableCell>{firstContract.companyName || "-"}</TableCell>
                     <TableCell className="font-semibold">
-                      {statement.projectData?.projectName || statement.project?.projectName || "-"}
+                      {statement.name || "-"}
                     </TableCell>
-                    <TableCell>{statement.financialYear}</TableCell>
-                    <TableCell>{statement.projectCode}</TableCell>
+                    <TableCell>{statement.fiscalYear || "-"}</TableCell>
+                    <TableCell>{statement.code || "-"}</TableCell>
                   </TableRow>
                 );
               })

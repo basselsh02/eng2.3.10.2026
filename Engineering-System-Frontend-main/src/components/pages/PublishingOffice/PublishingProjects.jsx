@@ -1,10 +1,7 @@
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { getProjectPublications } from "../../../api/projectPublicationAPI";
-import { getCollections } from "../../../api/collectionsAPI";
-import { getBookletSales } from "../../../api/bookletSalesAPI";
-import { getPublicationMemos } from "../../../api/publicationMemosAPI";
+import { useFFData } from "../../../hooks/useFFData";
+import { getFFProjects, getFFContracts } from "../../../services/ffApi";
 import PageTitle from "../../ui/PageTitle/PageTitle";
 import Button from "../../ui/Button/Button";
 import Input from "../../ui/Input/Input";
@@ -19,28 +16,8 @@ export default function PublishingProjects() {
   const search = searchParams.get("search") || "";
   const [searchInput, setSearchInput] = useState(search);
 
-  // Fetch project publications
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["projectPublications", page, search],
-    queryFn: () => getProjectPublications({ page, limit: 10, search }),
-    keepPreviousData: true,
-  });
-
-  // Fetch counts for each module per project
-  const { data: collectionsData } = useQuery({
-    queryKey: ["collectionsAll"],
-    queryFn: () => getCollections({ limit: 1000 }),
-  });
-
-  const { data: bookletSalesData } = useQuery({
-    queryKey: ["bookletSalesAll"],
-    queryFn: () => getBookletSales({ limit: 1000 }),
-  });
-
-  const { data: memosData } = useQuery({
-    queryKey: ["publicationMemosAll"],
-    queryFn: () => getPublicationMemos({ limit: 1000 }),
-  });
+  const { data: projects, loading, error } = useFFData(getFFProjects, { search }, [search]);
+  const { data: contracts } = useFFData(getFFContracts, {}, []);
 
   const handleSearch = () => {
     const next = searchInput.trim();
@@ -66,7 +43,7 @@ export default function PublishingProjects() {
     navigate(`/publishing-office/projects/${projectCode}`);
   };
 
-  if (isLoading) return <Loading />;
+  if (loading) return <Loading />;
 
   if (error) {
     return (
@@ -77,19 +54,20 @@ export default function PublishingProjects() {
     );
   }
 
-  const publications = data?.data?.projectPublications || [];
-  const totalPages = data?.data?.pagination?.totalPages || 1;
+  const publications = projects || [];
+  const totalPages = Math.max(1, Math.ceil(publications.length / 10));
+  const paginatedPublications = publications.slice((page - 1) * 10, page * 10);
 
   // Count related records for each project
   const getProjectCounts = (projectCode) => {
-    const collections = collectionsData?.data?.collections || [];
-    const booklets = bookletSalesData?.data?.bookletSales || [];
-    const memos = memosData?.data?.publicationMemos || [];
+    const relatedContracts = (contracts || []).filter(
+      (contract) => contract.projectName === projectCode || contract.project?.name === projectCode
+    );
 
     return {
-      collections: collections.filter(c => c.projectNumber === projectCode).length,
-      booklets: booklets.filter(b => b.projectNumber === projectCode).length,
-      memos: memos.filter(m => m.projectNumber === projectCode).length
+      collections: relatedContracts.length,
+      booklets: relatedContracts.length,
+      memos: relatedContracts.length,
     };
   };
 
@@ -129,16 +107,16 @@ export default function PublishingProjects() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {publications.length > 0 ? (
-              publications.map((publication) => {
-                const counts = getProjectCounts(publication.projectCode);
+            {paginatedPublications.length > 0 ? (
+              paginatedPublications.map((publication) => {
+                const counts = getProjectCounts(publication.code || publication.name);
                 return (
                   <TableRow key={publication._id}>
                     <TableCell>
                       <Button
                         size="sm"
                         variant="primary"
-                        onClick={() => handleViewDetails(publication.projectCode)}
+                        onClick={() => handleViewDetails(publication.code)}
                       >
                         عرض التفاصيل
                       </Button>
@@ -159,14 +137,14 @@ export default function PublishingProjects() {
                       </span>
                     </TableCell>
                     <TableCell className="font-semibold">
-                      {publication.estimatedCost ? publication.estimatedCost.toLocaleString('ar-EG') : "-"}
+                      {publication.estimatedCost?.value ? publication.estimatedCost.value.toLocaleString('ar-EG') : "-"}
                     </TableCell>
                     <TableCell className="font-semibold">
-                      {publication.projectName}
+                      {publication.name}
                     </TableCell>
-                    <TableCell>{publication.projectType}</TableCell>
-                    <TableCell>{publication.financialYear}</TableCell>
-                    <TableCell>{publication.projectCode}</TableCell>
+                    <TableCell>{publication.contractingParty || "-"}</TableCell>
+                    <TableCell>{publication.fiscalYear || "-"}</TableCell>
+                    <TableCell>{publication.code || "-"}</TableCell>
                   </TableRow>
                 );
               })
