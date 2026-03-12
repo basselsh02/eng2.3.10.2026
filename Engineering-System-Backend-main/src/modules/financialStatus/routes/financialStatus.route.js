@@ -14,6 +14,7 @@ router.get("/project/:projectId", financialStatusController.getFinancialStatuses
 router.post("/:id/events", financialStatusController.addEventToFinancialStatus);
 
 // Main CRUD routes
+router.post("/export", financialStatusController.exportToExcel);
 router.route("/")
     .post(financialStatusController.createFinancialStatus)
     .get(financialStatusController.getAllFinancialStatuses);
