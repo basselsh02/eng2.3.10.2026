@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { AppError } from "../../../utils/AppError.js";
 import MaintenanceReport from "../models/maintenanceReport.model.js";
+import ExcelJS from "exceljs";
 
 const validateBusinessRules = (payload) => {
   if (payload.fromDate && payload.toDate && new Date(payload.toDate) < new Date(payload.fromDate)) {
@@ -120,6 +121,58 @@ export const deleteMaintenanceReport = async (req, res, next) => {
     }
 
     res.json({ success: true, message: "تم حذف تقرير الصيانة بنجاح" });
+  } catch (error) {
+    return next(new AppError(error.message, 500));
+  }
+};
+
+
+export const exportToExcel = async (req, res, next) => {
+  try {
+    const search = req.body.search || "";
+    const filters = req.body.filters ? JSON.parse(req.body.filters) : {};
+    const query = {};
+
+    if (search) {
+      query.$or = [
+        { projectNumber: { $regex: search, $options: "i" } },
+        { projectName: { $regex: search, $options: "i" } },
+        { company: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    Object.keys(filters).forEach((field) => {
+      if (filters[field]) query[field] = { $regex: new RegExp(filters[field], "i") };
+    });
+
+    const docs = await MaintenanceReport.find(query).sort({ createdAt: -1 }).lean();
+    if (!docs.length) return next(new AppError("لا توجد بيانات للتصدير", 404));
+
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("البيانات");
+    sheet.columns = [
+      { header: "رقم المشروع", key: "projectNumber", width: 20 },
+      { header: "الشركة", key: "company", width: 24 },
+      { header: "بيان المشروع", key: "projectName", width: 28 },
+      { header: "المبلغ المنصرف", key: "disbursedAmount", width: 18 },
+      { header: "من", key: "fromDate", width: 14 },
+      { header: "إلى", key: "toDate", width: 14 },
+    ];
+    sheet.getRow(1).font = { bold: true };
+
+    docs.forEach((doc) => sheet.addRow({
+      projectNumber: doc.projectNumber || "",
+      company: doc.company || "",
+      projectName: doc.projectName || "",
+      disbursedAmount: doc.disbursedAmount || "",
+      fromDate: doc.fromDate ? new Date(doc.fromDate).toLocaleDateString("ar-EG") : "",
+      toDate: doc.toDate ? new Date(doc.toDate).toLocaleDateString("ar-EG") : "",
+    }));
+
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", `attachment; filename=maintenance_reports_${Date.now()}.xlsx`);
+    await workbook.xlsx.write(res);
+    res.end();
   } catch (error) {
     return next(new AppError(error.message, 500));
   }

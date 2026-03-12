@@ -5,9 +5,12 @@ import {
   getAllMaintenanceReports,
   getMaintenanceReportById,
   updateMaintenanceReport,
+  exportToExcel,
 } from "../controllers/maintenanceReport.controller.js";
 
 const router = express.Router();
+
+router.post("/export", exportToExcel);
 
 router.route("/").get(getAllMaintenanceReports).post(createMaintenanceReport);
 router
