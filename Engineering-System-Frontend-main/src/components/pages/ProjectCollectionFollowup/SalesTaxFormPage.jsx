@@ -1,57 +1,113 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
 import Button from "../../ui/Button/Button";
 import Card from "../../ui/Card/Card";
+import Input from "../../ui/Input/Input";
 import ModuleHeader from "./ModuleHeader";
 import {
   arabicDate,
   salesTaxPrimaryActions,
   salesTaxSecondaryActions,
 } from "./mockData";
-
-const headerFields = [
-  ["رقم التسجيل بضريبة المبيعات", ""],
-  ["رقم الطلبية", ""],
-  ["رقم المسلسل الضريبي", ""],
-  ["اسم الشركة", "مكتب الاصالة للمقاولات العامة"],
-  ["كود", "٥٦٦٨"],
-  ["عنوان الشركة / عنوان المصنع", ""],
-  ["اسم المسئول", "عبداللة على عثمان بن شلوى من خلال القيم بأعمال سامر فاري"],
-  ["بيان السلطة", ""],
-  ["اسم المشروع", ""],
-  ["رقم امر التوريد", "١١/٢٥/أسمى"],
-  ["تاريخ امر التوريد", "٢٠٢١-٠٩-١٢"],
-  ["القيمة المسموية الاجمالية", "٤٩٧٩٤٠"],
-  ["القيمة الفعلية للامر", "٤٩٧٩٤٠"],
-  ["تاريخ امر العقد", "٢٠٢٤-٠٩-١٢"],
-  ["اسم الشركة (العقد)", "كتب الاصالة للمقاولات العامه"],
-];
-
-const taxFields = [
-  ["نسبة الضريبة %", ""],
-  ["قيمة الضريبة المبلغية", ""],
-  ["تاريخ امر العقد / الانعقاد", "٢٠٢٤-٠٩-١٢"],
-  ["القيمة الضريبة الفعلية", ""],
-  ["قيمة الضريبة المبلغية (lower)", ""],
-  ["الرقم", ""],
-  ["الرقم (lower)", ""],
-  ["ضمان ثابت", ""],
-  ["ضمان صناعة", ""],
-  ["٥٠ عاج جزء", ""],
-  ["مجموع", "١٤٩٠"],
-  ["تكلفة المشروع", "٢٤٩٨٨٨"],
-  ["العام المالي", "٢٠٢٥/٢٠٢٤"],
-  ["اللواء", "اللواء ١٥١ اشادات"],
-  ["الفرع", ""],
-  ["اسم الفرع المنفذ", "اللواء ١٥١ اشادات"],
-  ["المسئولية الثانية التابع لها الفرض", ""],
-  ["المسئولية التابع لها الفرض", ""],
-  ["رقم الفصل الضرائبي", "٤١٦٢"],
-  ["رقم الفصل الضرائبي (lower)", ""],
-  ["مرجع مركب", "٢٩/٠١/٨٧٨/٤٩٩"],
-  ["مرجع مركب (ثانوي)", "٢٩/٠١/٨٧٨/٤٤٩"],
-];
+// TODO: import { getSupplyOrderById } from "../../../api/supplyOrdersAPI";
 
 export default function SalesTaxFormPage() {
+  const { projectId } = useParams();
+
+  const [projectCodeInput, setProjectCodeInput] = useState(projectId || "");
+  const [committed, setCommitted] = useState(projectId ? { projectCode: projectId } : null);
+
+  const emptyForm = useMemo(
+    () => ({
+      taxRegistrationNumber: "",
+      orderNumber: "",
+      serialTaxNumber: "",
+      companyName: "",
+      companyCode: "",
+      companyAddress: "",
+      responsibleName: "",
+      authorityStatement: "",
+      projectName: "",
+      supplyOrderNumber: "",
+      supplyOrderDate: "",
+      totalEstimatedValue: "",
+      actualOrderValue: "",
+      contractDate: "",
+      contractCompanyName: "",
+      taxRate: "",
+      taxValue: "",
+      actualTaxValue: "",
+      fixedGuarantee: "",
+      industryGuarantee: "",
+      total: "",
+      projectCost: "",
+      fiscalYear: "",
+      brigade: "",
+      branch: "",
+      executingBranchName: "",
+    }),
+    []
+  );
+
+  const [formData, setFormData] = useState(emptyForm);
+
+  const fieldLabels = {
+    taxRegistrationNumber: "رقم التسجيل بضريبة المبيعات",
+    orderNumber: "رقم الطلبية",
+    serialTaxNumber: "رقم المسلسل الضريبي",
+    companyName: "اسم الشركة",
+    companyCode: "كود الشركة",
+    companyAddress: "عنوان الشركة / عنوان المصنع",
+    responsibleName: "اسم المسئول",
+    authorityStatement: "بيان السلطة",
+    projectName: "اسم المشروع",
+    supplyOrderNumber: "رقم امر التوريد",
+    supplyOrderDate: "تاريخ امر التوريد",
+    totalEstimatedValue: "القيمة المسموية الاجمالية",
+    actualOrderValue: "القيمة الفعلية للامر",
+    contractDate: "تاريخ امر العقد",
+    contractCompanyName: "اسم الشركة (العقد)",
+    taxRate: "نسبة الضريبة %",
+    taxValue: "قيمة الضريبة المبلغية",
+    actualTaxValue: "القيمة الضريبة الفعلية",
+    fixedGuarantee: "ضمان ثابت",
+    industryGuarantee: "ضمان صناعة",
+    total: "مجموع",
+    projectCost: "تكلفة المشروع",
+    fiscalYear: "العام المالي",
+    brigade: "اللواء",
+    branch: "الفرع",
+    executingBranchName: "اسم الفرع المنفذ",
+  };
+
+  const handleFieldChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSearch = () => {
+    if (projectCodeInput.trim()) {
+      setCommitted({ projectCode: projectCodeInput.trim() });
+    }
+  };
+
+  const handleClear = () => {
+    setProjectCodeInput("");
+    setCommitted(null);
+    setFormData(emptyForm);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") handleSearch();
+  };
+
+  // TODO: Replace with real backend call when Supplies API is ready:
+  // const { data } = useQuery({
+  //   queryKey: ["salesTax", committed],
+  //   queryFn: () => getSupplyOrderById(committed?.projectCode),
+  //   enabled: !!committed?.projectCode,
+  // });
+  // useEffect(() => { if (data?.data) setFormData(data.data); }, [data]);
+
   return (
     <div dir="rtl" className="space-y-4">
       <ModuleHeader
@@ -62,63 +118,58 @@ export default function SalesTaxFormPage() {
       />
 
       <Card className="p-4">
-        <div className="flex gap-3 flex-wrap items-center">
-          <div>
-            <label className="text-sm font-semibold">كود المشروع</label>
-            <input className="border rounded px-3 py-2" defaultValue="١١/٢٥/أسمى" />
+        <div className="flex gap-3 flex-wrap items-end">
+          <Input
+            label="كود المشروع"
+            value={projectCodeInput}
+            onChange={(e) => setProjectCodeInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="أدخل كود المشروع"
+          />
+          <div className="flex gap-2">
+            <Button onClick={handleSearch}>بحث</Button>
+            <Button variant="secondary" onClick={handleClear}>مسح</Button>
           </div>
-          <label className="flex items-center gap-1 text-sm"><input type="radio" defaultChecked />ابحث برقم المشروع</label>
-          <label className="flex items-center gap-1 text-sm"><input type="radio" />ابحث باسم المشروع</label>
-          <Button variant="secondary" size="sm">الغاء البحث</Button>
-          <div className="border rounded px-3 py-2 text-sm">&lt; رقم المشروع: ١١/٢٥/أسمى &gt;</div>
         </div>
       </Card>
 
-      <Card className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-          {headerFields.map(([label, value]) => (
-            <div key={label}>
-              <label className="font-semibold">{label}</label>
-              <input className="border rounded px-3 py-2 w-full" defaultValue={value} />
+      {!committed && (
+        <div className="text-center py-10 text-gray-500 bg-white shadow rounded-lg">
+          أدخل كود المشروع للبحث
+        </div>
+      )}
+
+      {committed && (
+        <>
+          <Card className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+              {Object.keys(formData).map((field) => (
+                <div key={field}>
+                  <label className="font-semibold">{fieldLabels[field] || field}</label>
+                  <input
+                    className="border rounded px-3 py-2 w-full"
+                    value={formData[field]}
+                    onChange={(e) => handleFieldChange(field, e.target.value)}
+                  />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </Card>
+          </Card>
 
-      <Card className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-          {taxFields.map(([label, value]) => (
-            <div key={label}>
-              <label className="font-semibold">{label}</label>
-              <input className="border rounded px-3 py-2 w-full" defaultValue={value} />
+          <Card className="p-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+              {salesTaxPrimaryActions.map((title) => (
+                <Button key={title} size="sm">{title}</Button>
+              ))}
             </div>
-          ))}
-          <div className="flex items-end">
-            <Button variant="outline" className="w-full">تحميل البيان</Button>
-          </div>
-          <div className="flex items-end">
-            <Button variant="outline" className="w-full">تحميل النسان</Button>
-          </div>
-        </div>
-      </Card>
-
-      <Card className="p-4">
-        <h3 className="font-bold mb-2">أوامر الطباعة الأساسية</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-          {salesTaxPrimaryActions.map((action) => (
-            <Button key={action}>{action}</Button>
-          ))}
-        </div>
-      </Card>
-
-      <Card className="p-4">
-        <h3 className="font-bold mb-2">أوامر الطباعة الثانوية</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-          {salesTaxSecondaryActions.map((action) => (
-            <Button key={action}>{action}</Button>
-          ))}
-        </div>
-      </Card>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-2">
+              {salesTaxSecondaryActions.map((title) => (
+                <Button key={title} size="sm" variant="secondary">{title}</Button>
+              ))}
+            </div>
+          </Card>
+        </>
+      )}
     </div>
   );
 }

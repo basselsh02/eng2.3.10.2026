@@ -7,7 +7,6 @@ import {
   BiFile,
 } from "react-icons/bi";
 import { FaProjectDiagram, FaUser } from "react-icons/fa";
-import { MdDashboard } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 import Button from "../Button/Button";
@@ -27,16 +26,8 @@ const menu = [
     icon: <FaUser className="size-5" />,
     path: "/users",
     children: [
-      {
-        label: "إضافة مستخدم",
-        path: "/users/create",
-        permissions: ["users:create"],
-      },
-      {
-        label: "قائمة المستخدمين",
-        path: "/users",
-        permissions: ["users:read", "users:update", "users:delete"],
-      },
+      { label: "إضافة مستخدم", path: "/users/create", permissions: ["users:create"] },
+      { label: "قائمة المستخدمين", path: "/users", permissions: ["users:read"] },
     ],
   },
   {
@@ -50,6 +41,84 @@ const menu = [
     icon: <FaProjectDiagram className="size-5" />,
     path: "/projects",
   },
+  // مكتب النشر
+  {
+    label: "مكتب النشر",
+    icon: <BiFile className="size-5" />,
+    path: "/publishing-office/projects",
+    children: [
+      { label: "مشاريع مكتب النشر", path: "/publishing-office/projects" },
+      { label: "استكمال بيانات المشروع", path: "/publishing-office/projects-data" },
+      { label: "تفاصيل المشاريع", path: "/publishing-office/projects-details" },
+      { label: "بيع الكراسات", path: "/booklet-sales" },
+      { label: "التحصيلات", path: "/collections" },
+      { label: "طباعة مذكرات النشر", path: "/publication-memos" },
+    ],
+  },
+  // مكتب الميزانية
+  {
+    label: "مكتب الميزانية",
+    icon: <FaFileInvoiceDollar className="size-5" />,
+    path: "/budget-office/projects",
+    children: [
+      { label: "المشاريع", path: "/budget-office/projects" },
+      { label: "بيان التعاقد والموازنة", path: "/budget-office/contract-budget-statement" },
+      { label: "الخصومات المالية", path: "/budget-office/financial-deductions" },
+    ],
+  },
+  // مكتب التوريدات
+  {
+    label: "مكتب التوريدات",
+    icon: <BiPackage className="size-5" />,
+    path: "/project-collection-followup",
+    children: [
+      { label: "متابعة التسويات", path: "/project-collection-followup/settlements" },
+      { label: "طباعة التقارير", path: "/project-collection-followup/reports" },
+      { label: "تسجيل الموقف الحالي", path: "/project-collection-followup/project-status" },
+      { label: "نموذج ضريبة المبيعات", path: "/project-collection-followup/sales-tax" },
+    ],
+  },
+  // مكتب المشتريات
+  {
+    label: "مكتب المشتريات",
+    icon: <BiFile className="size-5" />,
+    path: "/procurement/memos",
+    children: [{ label: "المذكرات", path: "/procurement/memos" }],
+  },
+  // مكتب الحسابات
+  {
+    label: "مكتب الحسابات",
+    icon: <BiFile className="size-5" />,
+    path: "/guarantee-letters",
+    children: [
+      { label: "متابعة دخول وخروج المستخلصات", path: "/guarantee-letters/claims-tracking" },
+      { label: "التقارير", path: "/guarantee-letters/reports" },
+      { label: "تسجيل خطابات الضمان", path: "/guarantee-letters/register" },
+    ],
+  },
+  // مكتب العقود
+  {
+    label: "مكتب العقود",
+    icon: <BiFile className="size-5" />,
+    path: "/financial-status",
+    children: [
+      { label: "الحالة المالية", path: "/financial-status" },
+      { label: "إنشاء حالة مالية", path: "/financial-status/create" },
+      { label: "استكمال بيانات المشروع", path: "/publishing-office/projects-data" },
+      { label: "تفاصيل المشاريع", path: "/publishing-office/projects-details" },
+    ],
+  },
+  // مكتب الصيانة
+  {
+    label: "مكتب الصيانة",
+    icon: <BiFile className="size-5" />,
+    path: "/maintenance-reports",
+    children: [
+      { label: "تقارير الصيانة", path: "/maintenance-reports" },
+      { label: "إنشاء تقرير صيانة", path: "/maintenance-reports/create" },
+    ],
+  },
+  // Other standalone items
   {
     label: "الإجراءات",
     icon: <BiFile className="size-5" />,
@@ -61,75 +130,14 @@ const menu = [
     path: "/financial-procedures",
   },
   {
-    label: "الحالة المالية",
-    icon: <BiFile className="size-5" />,
-    path: "/financial-status",
-  },
-  {
-    label: "المكاتب",
-    icon: <BiFile className="size-5" />,
-    path: "/offices",
-  },
-  {
     label: "سير العمل",
     icon: <BiFile className="size-5" />,
     path: "/workflows",
   },
   {
-    label: "استكمال بيانات المشروع بالنشر",
-    icon: <BiFile className="size-5" />,
-    path: "/project-publication",
-  },
-  {
-    label: "التحصيلات",
-    icon: <FaFileInvoiceDollar className="size-5" />,
-    path: "/collections",
-  },
-  {
-    label: "متابعة التحصيل للمشروعات",
-    icon: <MdDashboard className="size-5" />,
-    path: "/project-collection-followup",
-    children: [
-      { label: "متابعة التسويات", path: "/project-collection-followup/settlements" },
-      { label: "طباعة التقارير", path: "/project-collection-followup/reports" },
-      { label: "تسجيل الموقف الحالي", path: "/project-collection-followup/project-status/1" },
-      { label: "نموذج ضريبة المبيعات", path: "/project-collection-followup/sales-tax/1" },
-    ],
-  },
-  {
-    label: "خطابات الضمان",
-    icon: <BiFile className="size-5" />,
-    path: "/guarantee-letters",
-    children: [
-      { label: "متابعة دخول وخروج المستخلصات", path: "/guarantee-letters/claims-tracking" },
-      { label: "التقارير", path: "/guarantee-letters/reports" },
-      { label: "تسجيل خطابات الضمان", path: "/guarantee-letters/register" },
-    ],
-  },
-  {
-    label: "بيع الكراسات",
-    icon: <BiPackage className="size-5" />,
-    path: "/booklet-sales",
-  },
-  {
-    label: "طباعة مذكرات النشر",
-    icon: <BiFile className="size-5" />,
-    path: "/publication-memos",
-  },
-  {
-    label: "تقارير الصيانة",
-    icon: <BiFile className="size-5" />,
-    path: "/maintenance-reports",
-  },
-  {
     label: "الملف الشخصي",
     icon: <FaUser className="size-5" />,
     path: "/profile",
-  },
-  {
-    label: "ممنوع",
-    icon: <BiFile className="size-5" />,
-    path: "/forbidden",
   },
 ];
 

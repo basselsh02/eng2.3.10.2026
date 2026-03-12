@@ -7,7 +7,7 @@ import { getBookletSales } from "../../../api/bookletSalesAPI";
 import { getPublicationMemos } from "../../../api/publicationMemosAPI";
 import PageTitle from "../../ui/PageTitle/PageTitle";
 import Button from "../../ui/Button/Button";
-import SearchInput from "../../ui/SearchInput/SearchInput";
+import Input from "../../ui/Input/Input";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../../ui/Table/Table";
 import Pagination from "../../ui/Pagination/Pagination";
 import Loading from "../../common/Loading/Loading";
@@ -17,6 +17,7 @@ export default function PublishingProjects() {
   const navigate = useNavigate();
   const page = parseInt(searchParams.get("page")) || 1;
   const search = searchParams.get("search") || "";
+  const [searchInput, setSearchInput] = useState(search);
 
   // Fetch project publications
   const { data, isLoading, error } = useQuery({
@@ -41,8 +42,20 @@ export default function PublishingProjects() {
     queryFn: () => getPublicationMemos({ limit: 1000 }),
   });
 
-  const handleSearch = (value) => {
-    setSearchParams({ page: "1", search: value });
+  const handleSearch = () => {
+    const next = searchInput.trim();
+    if (next) {
+      setSearchParams({ page: "1", search: next });
+    }
+  };
+
+  const handleClear = () => {
+    setSearchInput("");
+    setSearchParams({ page: "1" });
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") handleSearch();
   };
 
   const handlePageChange = (newPage) => {
@@ -86,12 +99,18 @@ export default function PublishingProjects() {
 
       <div className="bg-white shadow rounded-lg p-6 mt-6">
         {/* Header Actions */}
-        <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
-          <SearchInput
-            value={search}
-            onChange={handleSearch}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end mb-6">
+          <Input
+            label="البحث"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             placeholder="بحث في المشاريع..."
+            onKeyDown={handleKeyDown}
           />
+          <div className="flex gap-2 mt-2">
+            <Button onClick={handleSearch} className="flex-1">بحث</Button>
+            <Button variant="secondary" onClick={handleClear} className="flex-1">مسح</Button>
+          </div>
         </div>
 
         {/* Projects Table */}

@@ -447,6 +447,22 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "project-collection-followup/project-status",
+        element: (
+          <ProtectedRoute>
+            <ProjectStatusRegisterPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "project-collection-followup/sales-tax",
+        element: (
+          <ProtectedRoute>
+            <SalesTaxFormPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: "project-collection-followup/project-status/:id",
         element: (
           <ProtectedRoute>
