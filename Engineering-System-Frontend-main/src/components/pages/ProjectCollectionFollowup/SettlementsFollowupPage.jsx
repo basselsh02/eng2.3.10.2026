@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Button from "../../ui/Button/Button";
 import Card from "../../ui/Card/Card";
 import Input from "../../ui/Input/Input";
@@ -12,24 +13,13 @@ import {
 } from "../../ui/Table/Table";
 import ModuleHeader from "./ModuleHeader";
 import { arabicDate, fiscalYears, settlementsRows } from "./mockData";
+import { getProjects } from "../../../api/projectAPI";
+import Loading from "../../common/Loading/Loading";
 
 export default function SettlementsFollowupPage() {
   const [projectCodeInput, setProjectCodeInput] = useState("");
   const [fiscalYear, setFiscalYear] = useState(fiscalYears[0].value);
   const [committed, setCommitted] = useState(null);
-
-  const [projectDetails] = useState({
-    projectCode: "",
-    supplyOrderNumber: "",
-    supplyOrderDate: "",
-    orderValue: "",
-    discountPercent: "",
-    discountValue: "",
-    actualOrderValue: "",
-    companyCode: "",
-    companyName: "",
-    description: "",
-  });
 
   const handleSearch = () => {
     if (projectCodeInput.trim()) {
@@ -46,12 +36,16 @@ export default function SettlementsFollowupPage() {
     if (e.key === "Enter") handleSearch();
   };
 
-  // TODO: Replace with real API call when Supplies backend is connected:
-  // const { data, isLoading } = useQuery({
-  //   queryKey: ["settlements", committed],
-  //   queryFn: () => getSettlements(committed),
-  //   enabled: !!committed,
-  // });
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["settlements-project", committed],
+    queryFn: getProjects,
+    enabled: !!committed?.projectCode,
+    keepPreviousData: true,
+  });
+
+  const projectDetails = (data?.data || []).find(
+    (project) => project.projectCode === committed?.projectCode
+  ) || {};
 
   const rows = committed ? settlementsRows : [];
 
@@ -90,20 +84,27 @@ export default function SettlementsFollowupPage() {
       )}
 
       {committed && (
+        isLoading ? <Loading /> : error ? (
+          <div className="text-center py-8">
+            <p className="text-red-600">حدث خطأ أثناء تحميل البيانات</p>
+            <p className="text-gray-600">{error.response?.data?.message || error.message}</p>
+          </div>
+        ) : (
         <Card className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
             <p><span className="font-bold">كود المشروع:</span> {projectDetails.projectCode || committed.projectCode}</p>
-            <p><span className="font-bold">رقم امر التوريد:</span> {projectDetails.supplyOrderNumber || "-"}</p>
-            <p><span className="font-bold">تاريخ امر التوريد:</span> {projectDetails.supplyOrderDate || "-"}</p>
-            <p><span className="font-bold">قيمة الامر:</span> {projectDetails.orderValue || "-"}</p>
+            <p><span className="font-bold">رقم امر التوريد:</span> {projectDetails.mainProject || "-"}</p>
+            <p><span className="font-bold">تاريخ امر التوريد:</span> {projectDetails.openingDate || "-"}</p>
+            <p><span className="font-bold">قيمة الامر:</span> {projectDetails.estimatedCost || "-"}</p>
             <p><span className="font-bold">نسبة الخصم%:</span> {projectDetails.discountPercent || "-"}</p>
             <p><span className="font-bold">قيمة الخصم:</span> {projectDetails.discountValue || "-"}</p>
             <p><span className="font-bold">القيمة الفعلية للامر:</span> {projectDetails.actualOrderValue || "-"}</p>
-            <p><span className="font-bold">الشركة:</span> {projectDetails.companyCode || "-"}</p>
-            <p><span className="font-bold">اسم الشركة:</span> {projectDetails.companyName || "-"}</p>
+            <p><span className="font-bold">الشركة:</span> {projectDetails.company || "-"}</p>
+            <p><span className="font-bold">اسم الشركة:</span> {projectDetails.company || "-"}</p>
           </div>
-          <p className="mt-3 text-sm"><span className="font-bold">الوصف:</span> {projectDetails.description || "-"}</p>
+          <p className="mt-3 text-sm"><span className="font-bold">الوصف:</span> {projectDetails.projectName || "-"}</p>
         </Card>
+        )
       )}
 
       {committed && (
