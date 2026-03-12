@@ -1,7 +1,7 @@
 // src/services/ffApi.js
 // Read-only service layer for all calls to the FinalFinally backend.
 
-const BASE_URL = import.meta.env.VITE_FF_API_URL || 'http://localhost:6000';
+const BASE_URL = import.meta.env.VITE_FF_API_URL || 'http://localhost:6001';
 const FF_USERNAME = import.meta.env.VITE_FF_USERNAME || '';
 const FF_PASSWORD = import.meta.env.VITE_FF_PASSWORD || '';
 
