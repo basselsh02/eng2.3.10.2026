@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
 import { BiSearch, BiTrash, BiEdit, BiShow } from "react-icons/bi";
-import toast from "react-hot-toast";
 import PageTitle from "../../ui/PageTitle/PageTitle";
 import Button from "../../ui/Button/Button";
 import Pagination from "../../ui/Pagination/Pagination";
@@ -16,7 +14,8 @@ import {
   TableHeader,
   TableRow,
 } from "../../ui/Table/Table";
-import { useDeleteMaintenanceReport, useMaintenanceReports } from "../../../hooks/useMaintenanceReports";
+import { useFFData } from "../../../hooks/useFFData";
+import { getFFContracts, getFFProjects, getFFCompanies } from "../../../services/ffApi";
 
 const formatAmount = (amount) =>
   typeof amount === "number" ? `${amount.toLocaleString("ar-EG")} ج.م.` : "—";
@@ -37,26 +36,17 @@ export default function MaintenanceReports() {
     return () => clearTimeout(timeout);
   }, [searchInput]);
 
-  const { data, isLoading, error } = useMaintenanceReports({ page, limit: 10, search });
-  const deleteMutation = useDeleteMaintenanceReport();
-  const queryClient = useQueryClient();
+  const { data: contracts, loading, error } = useFFData(getFFContracts, { search }, [search]);
+  const { data: projects } = useFFData(getFFProjects, {}, []);
+  const { data: companies } = useFFData(getFFCompanies, {}, []);
 
-  const reports = useMemo(() => data?.data?.docs || [], [data]);
-  const totalPages = data?.data?.totalPages || 1;
+  const reports = useMemo(() => contracts || [], [contracts]);
+  const totalPages = Math.max(1, Math.ceil(reports.length / 10));
+  const paginatedReports = reports.slice((page - 1) * 10, page * 10);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("هل تريد حذف التقرير؟")) return;
+  const handleDelete = async () => {};
 
-    try {
-      await deleteMutation.mutateAsync(id);
-      toast.success("تم حذف تقرير الصيانة بنجاح");
-      queryClient.invalidateQueries(["maintenanceReports"]);
-    } catch (err) {
-      toast.error(err?.response?.data?.message || "فشل حذف التقرير");
-    }
-  };
-
-  if (isLoading) return <Loading />;
+  if (loading) return <Loading />;
 
   if (error) {
     return <div className="text-center text-red-600 py-8">حدث خطأ أثناء تحميل تقارير الصيانة</div>;
@@ -103,50 +93,53 @@ export default function MaintenanceReports() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {reports.length ? (
-              reports.map((report, index) => (
-                <TableRow key={report._id}>
-                  <TableCell>{(page - 1) * 10 + index + 1}</TableCell>
-                  <TableCell>{report.projectNumber || "—"}</TableCell>
-                  <TableCell>{report.company || "—"}</TableCell>
-                  <TableCell>{report.projectName || "—"}</TableCell>
-                  <TableCell>{formatAmount(report.disbursedAmount)}</TableCell>
-                  <TableCell>{formatDate(report.fromDate)}</TableCell>
-                  <TableCell>{formatDate(report.toDate)}</TableCell>
-                  <TableCell>{report.projectLocations || "—"}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`inline-flex px-2 py-1 rounded text-xs ${
-                        report.isStopped ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      {report.isStopped ? "متوقف" : "نشط"}
-                    </span>
-                  </TableCell>
-                  <TableCell>{formatDate(report.hallReceiptDate)}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Link to={`/maintenance-reports/create?id=${report._id}`} title="عرض التفاصيل">
-                        <Button size="icon" variant="light"><BiShow /></Button>
-                      </Link>
-                      <Link to={`/maintenance-reports/create?id=${report._id}`} title="تعديل">
-                        <Button size="icon" variant="info"><BiEdit /></Button>
-                      </Link>
-                      <Can any={["maintenance-reports:delete", "collections:delete"]}>
-                        <Button
-                          size="icon"
-                          variant="danger"
-                          onClick={() => handleDelete(report._id)}
-                          disabled={deleteMutation.isPending}
-                          title="حذف"
-                        >
-                          <BiTrash />
-                        </Button>
-                      </Can>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
+            {paginatedReports.length ? (
+              paginatedReports.map((report, index) => {
+                const project = (projects || []).find((item) => item.name === report.projectName);
+                const companyInfo = (companies || []).find((item) => item.companyName === report.companyName);
+                return (
+                  <TableRow key={report._id}>
+                    <TableCell>{(page - 1) * 10 + index + 1}</TableCell>
+                    <TableCell>{report.contractNumber || "—"}</TableCell>
+                    <TableCell>{report.companyName || companyInfo?.companyName || "—"}</TableCell>
+                    <TableCell>{report.projectName || "—"}</TableCell>
+                    <TableCell>{formatAmount(report.totalDisbursed)}</TableCell>
+                    <TableCell>{formatDate(report.startDate)}</TableCell>
+                    <TableCell>{formatDate(report.endDate)}</TableCell>
+                    <TableCell>{project?.location || "—"}</TableCell>
+                    <TableCell>
+                      <span
+                        className={`inline-flex px-2 py-1 rounded text-xs ${
+                          report.status === "active" ? "bg-gray-100 text-gray-700" : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {report.status === "active" ? "نشط" : "متوقف"}
+                      </span>
+                    </TableCell>
+                    <TableCell>{formatDate(report.createdAt)}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Link to={`/maintenance-reports/create?id=${report._id}`} title="عرض التفاصيل">
+                          <Button size="icon" variant="light"><BiShow /></Button>
+                        </Link>
+                        <Link to={`/maintenance-reports/create?id=${report._id}`} title="تعديل">
+                          <Button size="icon" variant="info"><BiEdit /></Button>
+                        </Link>
+                        <Can any={["maintenance-reports:delete", "collections:delete"]}>
+                          <Button
+                            size="icon"
+                            variant="danger"
+                            onClick={() => handleDelete(report._id)}
+                            title="حذف"
+                          >
+                            <BiTrash />
+                          </Button>
+                        </Can>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             ) : (
               <TableRow>
                 <TableCell colSpan={11} className="text-center py-10 text-gray-500">
