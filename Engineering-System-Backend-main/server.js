@@ -131,7 +131,7 @@ app.use("*", (req, res) => {
 // Global error handler
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 6000;
+const PORT = process.env.PORT || 6001;
 app.listen(PORT, () => {
     logger.info(`Server running on port ${PORT}`);
 });
