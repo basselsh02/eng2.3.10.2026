@@ -20,7 +20,7 @@ export default function ProjectDetail() {
     queryKey: ["projectPublicationByCode", projectCode],
     queryFn: async () => {
       const response = await getProjectPublications({ search: projectCode, limit: 1 });
-      return response.data.projectPublications[0];
+      return response?.data?.projectPublications?.[0];
     },
   });
 

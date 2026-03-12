@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Button from "../../ui/Button/Button";
 import Card from "../../ui/Card/Card";
@@ -21,6 +21,20 @@ export default function RegisterGuaranteeLettersPage() {
   const [projectNumberInput, setProjectNumberInput] = useState("");
   const [fiscalYear, setFiscalYear] = useState(fiscalYears[0].value);
   const [committed, setCommitted] = useState(null);
+  const [guaranteeData, setGuaranteeData] = useState({
+    requestNumber: "",
+    issueDate: "",
+    expiryDate: "",
+    renewalDate: "",
+    amount: "",
+    type: "",
+    bank: "",
+    entity: "",
+    notes: "",
+    expired: false,
+    renewalStartDate: "",
+    renewalEndDate: "",
+  });
 
   const handleSearch = () => {
     if (projectNumberInput.trim()) {
@@ -45,6 +59,27 @@ export default function RegisterGuaranteeLettersPage() {
 
   const letters = data?.data?.guaranteeLetters || data?.data || [];
   const firstLetter = letters[0] || {};
+
+  useEffect(() => {
+    setGuaranteeData({
+      requestNumber: firstLetter.guaranteeRequestNumber || "",
+      issueDate: firstLetter.guaranteeLetterDate || "",
+      expiryDate: firstLetter.letterEndDate || "",
+      renewalDate: firstLetter.renewalDate || "",
+      amount: firstLetter.guaranteeValue || "",
+      type: firstLetter.letterType || "",
+      bank: firstLetter.bankName || "",
+      entity: firstLetter.entity || "",
+      notes: firstLetter.notes || "",
+      expired: !!firstLetter.expired,
+      renewalStartDate: firstLetter.renewalStartDate || "",
+      renewalEndDate: firstLetter.renewalEndDate || "",
+    });
+  }, [firstLetter]);
+
+  const handleFieldChange = (field, value) => {
+    setGuaranteeData((prev) => ({ ...prev, [field]: value }));
+  };
 
   return (
     <div className="space-y-4" dir="rtl">
@@ -122,19 +157,19 @@ export default function RegisterGuaranteeLettersPage() {
 
           <Card className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-              <Input label="رقم مطلب الضمان" value={firstLetter.guaranteeRequestNumber || ""} readOnly />
-              <Input label="تاريخ خطاب الضمان" type="date" value={firstLetter.guaranteeLetterDate || ""} readOnly />
-              <Input label="تاريخ سنهاء الخطاب" type="date" value={firstLetter.letterEndDate || ""} readOnly />
-              <Input label="تاريخ التجديد" type="date" value={firstLetter.renewalDate || ""} readOnly />
-              <Input label="قيمة خطاب الضمان" value={firstLetter.guaranteeValue || ""} readOnly />
-              <Input label="نوع الخطاب" value={firstLetter.letterType || ""} readOnly />
-              <Input label="البنك" value={firstLetter.bankName || ""} readOnly />
-              <Input label="الجهة" value={firstLetter.entity || ""} readOnly />
-              <Input label="ملاحظات" value={firstLetter.notes || ""} readOnly />
-              <div className="flex items-center gap-2 text-sm font-semibold"><span>مؤسر الانتهاء / انتهى</span><input type="checkbox" checked={!!firstLetter.expired} readOnly /></div>
+              <Input label="رقم مطلب الضمان" value={guaranteeData.requestNumber} onChange={(e) => handleFieldChange("requestNumber", e.target.value)} />
+              <Input label="تاريخ خطاب الضمان" type="date" value={guaranteeData.issueDate} onChange={(e) => handleFieldChange("issueDate", e.target.value)} />
+              <Input label="تاريخ سنهاء الخطاب" type="date" value={guaranteeData.expiryDate} onChange={(e) => handleFieldChange("expiryDate", e.target.value)} />
+              <Input label="تاريخ التجديد" type="date" value={guaranteeData.renewalDate} onChange={(e) => handleFieldChange("renewalDate", e.target.value)} />
+              <Input label="قيمة خطاب الضمان" value={guaranteeData.amount} onChange={(e) => handleFieldChange("amount", e.target.value)} />
+              <Input label="نوع الخطاب" value={guaranteeData.type} onChange={(e) => handleFieldChange("type", e.target.value)} />
+              <Input label="البنك" value={guaranteeData.bank} onChange={(e) => handleFieldChange("bank", e.target.value)} />
+              <Input label="الجهة" value={guaranteeData.entity} onChange={(e) => handleFieldChange("entity", e.target.value)} />
+              <Input label="ملاحظات" value={guaranteeData.notes} onChange={(e) => handleFieldChange("notes", e.target.value)} />
+              <div className="flex items-center gap-2 text-sm font-semibold"><span>مؤسر الانتهاء / انتهى</span><input type="checkbox" checked={guaranteeData.expired} onChange={(e) => handleFieldChange("expired", e.target.checked)} /></div>
               <p className="text-sm font-bold self-center">عدد الخطابات: {letters.length}</p>
-              <Input label="فترة التجديد من" type="date" value={firstLetter.renewalStartDate || ""} readOnly />
-              <Input label="فترة التجديد إلى" type="date" value={firstLetter.renewalEndDate || ""} readOnly />
+              <Input label="فترة التجديد من" type="date" value={guaranteeData.renewalStartDate} onChange={(e) => handleFieldChange("renewalStartDate", e.target.value)} />
+              <Input label="فترة التجديد إلى" type="date" value={guaranteeData.renewalEndDate} onChange={(e) => handleFieldChange("renewalEndDate", e.target.value)} />
             </div>
           </Card>
 

@@ -23,7 +23,7 @@ export default function ClaimsTrackingPage() {
 
   const handleSearch = () => {
     if (projectCodeInput.trim()) {
-      setCommitted(projectCodeInput.trim());
+      setCommitted({ projectCode: projectCodeInput.trim() });
     }
   };
 
@@ -38,8 +38,9 @@ export default function ClaimsTrackingPage() {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["claims", committed],
-    queryFn: () => getClaimsByProject(committed),
-    enabled: !!committed,
+    queryFn: () => getClaimsByProject(committed?.projectCode),
+    enabled: !!committed?.projectCode,
+    keepPreviousData: true,
   });
 
   const claims = data?.data?.claims || data?.data || [];
@@ -88,7 +89,7 @@ export default function ClaimsTrackingPage() {
         <>
           <Card className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-              <p><span className="font-bold">رقم المشروع:</span> {projectInfo.projectCode || projectInfo.project_id || committed}</p>
+              <p><span className="font-bold">رقم المشروع:</span> {projectInfo.projectCode || projectInfo.project_id || committed?.projectCode}</p>
               <p><span className="font-bold">الشركة:</span> {projectInfo.companyCode || projectInfo.company_id || "-"}</p>
               <p><span className="font-bold">القيمة الراسمية:</span> {projectInfo.estimatedValue || projectInfo.projectValue || "-"}</p>
               <p><span className="font-bold">اسم الشركة:</span> {projectInfo.companyName || "-"}</p>

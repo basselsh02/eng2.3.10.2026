@@ -1,49 +1,51 @@
 import React, { useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { useFFData } from "../../../hooks/useFFData";
-import { getFFProjects, getFFContracts } from "../../../services/ffApi";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import PageTitle from "../../ui/PageTitle/PageTitle";
 import Button from "../../ui/Button/Button";
 import Input from "../../ui/Input/Input";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../../ui/Table/Table";
 import Pagination from "../../ui/Pagination/Pagination";
 import Loading from "../../common/Loading/Loading";
+import { getProjectPublications } from "../../../api/projectPublicationAPI";
 
 export default function PublishingProjects() {
-  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const page = parseInt(searchParams.get("page")) || 1;
-  const search = searchParams.get("search") || "";
-  const [searchInput, setSearchInput] = useState(search);
+  const [searchInput, setSearchInput] = useState("");
+  const [page, setPage] = useState(1);
+  const [committed, setCommitted] = useState({ search: "" });
 
-  const { data: projects, loading, error } = useFFData(getFFProjects, { search }, [search]);
-  const { data: contracts } = useFFData(getFFContracts, {}, []);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["projectPublications", page, committed],
+    queryFn: () =>
+      getProjectPublications({
+        page,
+        limit: 10,
+        ...(committed.search && { search: committed.search }),
+      }),
+    keepPreviousData: true,
+  });
 
   const handleSearch = () => {
-    const next = searchInput.trim();
-    if (next) {
-      setSearchParams({ page: "1", search: next });
-    }
+    setPage(1);
+    setCommitted({ search: searchInput.trim() });
   };
 
   const handleClear = () => {
     setSearchInput("");
-    setSearchParams({ page: "1" });
+    setPage(1);
+    setCommitted({ search: "" });
   };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") handleSearch();
   };
 
-  const handlePageChange = (newPage) => {
-    setSearchParams({ page: newPage.toString(), search });
-  };
-
   const handleViewDetails = (projectCode) => {
     navigate(`/publishing-office/projects/${projectCode}`);
   };
 
-  if (loading) return <Loading />;
+  if (isLoading) return <Loading />;
 
   if (error) {
     return (
@@ -54,29 +56,14 @@ export default function PublishingProjects() {
     );
   }
 
-  const publications = projects || [];
-  const totalPages = Math.max(1, Math.ceil(publications.length / 10));
-  const paginatedPublications = publications.slice((page - 1) * 10, page * 10);
-
-  // Count related records for each project
-  const getProjectCounts = (projectCode) => {
-    const relatedContracts = (contracts || []).filter(
-      (contract) => contract.projectName === projectCode || contract.project?.name === projectCode
-    );
-
-    return {
-      collections: relatedContracts.length,
-      booklets: relatedContracts.length,
-      memos: relatedContracts.length,
-    };
-  };
+  const publications = data?.data?.projectPublications || [];
+  const totalPages = data?.data?.pagination?.totalPages || 1;
 
   return (
-    <div>
+    <div dir="rtl">
       <PageTitle title="مشاريع مكتب النشر" />
 
       <div className="bg-white shadow rounded-lg p-6 mt-6">
-        {/* Header Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end mb-6">
           <Input
             label="البحث"
@@ -91,7 +78,6 @@ export default function PublishingProjects() {
           </div>
         </div>
 
-        {/* Projects Table */}
         <Table>
           <TableHeader>
             <TableRow>
@@ -107,47 +93,30 @@ export default function PublishingProjects() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedPublications.length > 0 ? (
-              paginatedPublications.map((publication) => {
-                const counts = getProjectCounts(publication.code || publication.name);
-                return (
-                  <TableRow key={publication._id}>
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        variant="primary"
-                        onClick={() => handleViewDetails(publication.code)}
-                      >
-                        عرض التفاصيل
-                      </Button>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <span className="inline-flex items-center justify-center w-8 h-8 bg-purple-100 text-purple-800 rounded-full font-semibold">
-                        {counts.memos}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-800 rounded-full font-semibold">
-                        {counts.booklets}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <span className="inline-flex items-center justify-center w-8 h-8 bg-green-100 text-green-800 rounded-full font-semibold">
-                        {counts.collections}
-                      </span>
-                    </TableCell>
-                    <TableCell className="font-semibold">
-                      {publication.estimatedCost?.value ? publication.estimatedCost.value.toLocaleString('ar-EG') : "-"}
-                    </TableCell>
-                    <TableCell className="font-semibold">
-                      {publication.name}
-                    </TableCell>
-                    <TableCell>{publication.contractingParty || "-"}</TableCell>
-                    <TableCell>{publication.fiscalYear || "-"}</TableCell>
-                    <TableCell>{publication.code || "-"}</TableCell>
-                  </TableRow>
-                );
-              })
+            {publications.length > 0 ? (
+              publications.map((publication) => (
+                <TableRow key={publication._id}>
+                  <TableCell>
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      onClick={() => handleViewDetails(publication.projectCode)}
+                    >
+                      عرض التفاصيل
+                    </Button>
+                  </TableCell>
+                  <TableCell className="text-center">{publication.publicationMemosList?.length || 0}</TableCell>
+                  <TableCell className="text-center">{publication.candidateCompanies?.filter((c) => c.purchased).length || 0}</TableCell>
+                  <TableCell className="text-center">{publication.candidateCompanies?.length || 0}</TableCell>
+                  <TableCell className="font-semibold">
+                    {publication.estimatedCost ? Number(publication.estimatedCost).toLocaleString("ar-EG") : "-"}
+                  </TableCell>
+                  <TableCell className="font-semibold">{publication.projectName || "-"}</TableCell>
+                  <TableCell>{publication.projectType || "-"}</TableCell>
+                  <TableCell>{publication.financialYear || "-"}</TableCell>
+                  <TableCell>{publication.projectCode || "-"}</TableCell>
+                </TableRow>
+              ))
             ) : (
               <TableRow>
                 <TableCell colSpan={9} className="text-center text-gray-500 py-8">
@@ -158,12 +127,11 @@ export default function PublishingProjects() {
           </TableBody>
         </Table>
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <Pagination
             currentPage={page}
             totalPages={totalPages}
-            onPageChange={handlePageChange}
+            onPageChange={setPage}
           />
         )}
       </div>

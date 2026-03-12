@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import Button from "../../ui/Button/Button";
 import Card from "../../ui/Card/Card";
@@ -9,7 +10,8 @@ import {
   salesTaxPrimaryActions,
   salesTaxSecondaryActions,
 } from "./mockData";
-// TODO: import { getSupplyOrderById } from "../../../api/supplyOrdersAPI";
+import { getProjects } from "../../../api/projectAPI";
+import Loading from "../../common/Loading/Loading";
 
 export default function SalesTaxFormPage() {
   const { projectId } = useParams();
@@ -50,6 +52,37 @@ export default function SalesTaxFormPage() {
   );
 
   const [formData, setFormData] = useState(emptyForm);
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["sales-tax-project", committed],
+    queryFn: getProjects,
+    enabled: !!committed?.projectCode,
+    keepPreviousData: true,
+  });
+
+  useEffect(() => {
+    if (!committed?.projectCode) {
+      setFormData(emptyForm);
+      return;
+    }
+
+    const project = (data?.data || []).find(
+      (item) => item.projectCode === committed.projectCode
+    );
+
+    if (!project) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      projectName: project.projectName || "",
+      projectCost: project.estimatedCost || "",
+      fiscalYear: project.financialYear || "",
+      branch: project.responsibleBranch || "",
+      executingBranchName: project.responsibleBranch || "",
+      companyName: project.company || "",
+      projectCode: project.projectCode || "",
+    }));
+  }, [committed, data, emptyForm]);
 
   const fieldLabels = {
     taxRegistrationNumber: "رقم التسجيل بضريبة المبيعات",
@@ -100,14 +133,6 @@ export default function SalesTaxFormPage() {
     if (e.key === "Enter") handleSearch();
   };
 
-  // TODO: Replace with real backend call when Supplies API is ready:
-  // const { data } = useQuery({
-  //   queryKey: ["salesTax", committed],
-  //   queryFn: () => getSupplyOrderById(committed?.projectCode),
-  //   enabled: !!committed?.projectCode,
-  // });
-  // useEffect(() => { if (data?.data) setFormData(data.data); }, [data]);
-
   return (
     <div dir="rtl" className="space-y-4">
       <ModuleHeader
@@ -139,7 +164,12 @@ export default function SalesTaxFormPage() {
         </div>
       )}
 
-      {committed && (
+      {committed && (isLoading ? <Loading /> : error ? (
+        <div className="text-center py-8">
+          <p className="text-red-600">حدث خطأ أثناء تحميل البيانات</p>
+          <p className="text-gray-600">{error.response?.data?.message || error.message}</p>
+        </div>
+      ) : (
         <>
           <Card className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
@@ -169,7 +199,7 @@ export default function SalesTaxFormPage() {
             </div>
           </Card>
         </>
-      )}
+      ))}
     </div>
   );
 }
