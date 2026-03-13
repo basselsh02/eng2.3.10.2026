@@ -9,8 +9,8 @@ import Loading from "../../common/Loading/Loading";
 import Can from "../../common/Can/Can";
 import DataTable from "../../common/DataTabel/DataTable";
 import api from "../../../api/axiosInstance";
-import { useFFData } from "../../../hooks/useFFData";
-import { getFFContracts } from "../../../services/ffApi";
+import { useQuery } from "@tanstack/react-query";
+import { getContracts } from "../../../api/localApi";
 import { useMaintenanceReports } from "../../../hooks/useMaintenanceReports";
 
 const formatAmount = (amount) =>
@@ -23,7 +23,11 @@ export default function MaintenanceReports() {
   const [committedSearch, setCommittedSearch] = useState("");
   const [columnFilters, setColumnFilters] = useState([]);
 
-  const { data: contracts, loading, error } = useFFData(getFFContracts, { search: committedSearch }, [committedSearch]);
+  const { data: contractsRes, isLoading: loading, error } = useQuery({
+    queryKey: ["contracts", committedSearch],
+    queryFn: () => getContracts({ search: committedSearch }),
+  });
+  const contracts = contractsRes?.data || [];
   const { data: localReportsRes } = useMaintenanceReports({ page: 1, limit: 1000, search: committedSearch });
 
   const localReports = localReportsRes?.data?.docs || [];

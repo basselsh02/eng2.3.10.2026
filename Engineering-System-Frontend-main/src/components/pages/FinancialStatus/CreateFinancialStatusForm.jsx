@@ -1,9 +1,8 @@
 import React from "react";
 import { useForm, Controller } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { upsertFinancialStatusByProjectCode } from "../../../api/financialStatusAPI";
-import { getFFProjects } from "../../../services/ffApi";
-import { useFFData } from "../../../hooks/useFFData";
+import { getProjects } from "../../../api/localApi";
 import Input from "../../ui/Input/Input";
 import AppSelect from "../../ui/AppSelect/AppSelect";
 import FormDatePicker from "../../ui/FormDatePicker/FormDatePicker";
@@ -12,11 +11,15 @@ import toast from "react-hot-toast";
 
 export default function CreateFinancialStatusForm({ onSuccess }) {
   const { register, handleSubmit, control, formState: { errors }, watch, setValue } = useForm();
-  const { data: projects = [] } = useFFData(getFFProjects, {}, []);
+  const { data: projRes } = useQuery({
+    queryKey: ["projects"],
+    queryFn: () => getProjects(),
+  });
+  const projects = projRes?.data || [];
 
   const projectOptions = projects.map((project) => ({
-    value: project.projectCode,
-    label: `${project.projectName || project.name} (${project.projectCode})`,
+    value: project.code || project.projectCode,
+    label: `${project.name || project.projectName} (${project.code || project.projectCode})`,
     project,
   }));
 
@@ -45,11 +48,11 @@ export default function CreateFinancialStatusForm({ onSuccess }) {
                 const selected = projectOptions.find((p) => p.value === value)?.project;
                 if (selected) {
                   setValue("projectType", selected.projectType || "");
-                  setValue("financialYear", selected.financialYear || selected.fiscalYear || "");
-                  setValue("projectDescription", selected.projectDescription || selected.projectName || selected.name || "");
-                  setValue("branch", selected.responsibleBranch || selected.branch || "");
-                  setValue("beneficiaryEntity", selected.ownerEntity || selected.beneficiaryEntity || "");
-                  setValue("companyName", selected.companyName || selected.company || "");
+                  setValue("financialYear", selected.fiscalYear || "");
+                  setValue("projectDescription", selected.name || selected.projectName || "");
+                  setValue("branch", selected.organizationalUnit?.name || "");
+                  setValue("beneficiaryEntity", selected.ownerEntity?.name || selected.ownerEntity || "");
+                  setValue("companyName", "");
                   setValue("portal", selected.portal || "");
                 }
               }}

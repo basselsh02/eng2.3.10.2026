@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { useFFData } from "../../../hooks/useFFData";
-import { getFFProcurements } from "../../../services/ffApi";
+import { useQuery } from "@tanstack/react-query";
+import { getProcurements } from "../../../api/localApi";
 import { FaBell, FaSearch, FaTimes } from "react-icons/fa";
 import Button from "../../ui/Button/Button";
 import Input from "../../ui/Input/Input";
@@ -66,10 +66,14 @@ export default function ProcurementMemos() {
   const [activeTab, setActiveTab] = useState("company-offers");
 
   const actionButtons = useMemo(() => getActionButtons(activeTab), [activeTab]);
-  const { data: procurements, loading, error } = useFFData(getFFProcurements, {}, []);
+  const { data: res, isLoading: loading, error } = useQuery({
+    queryKey: ["procurements"],
+    queryFn: () => getProcurements(),
+  });
+  const procurements = res?.data || [];
 
   if (loading) return <div>جاري التحميل...</div>;
-  if (error) return <div>{error}</div>;
+  if (error) return <div>{error?.message || String(error)}</div>;
 
   const projects = (procurements || []).map((item, index) => ({
     id: item._id || index,

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import PageTitle from "../../ui/PageTitle/PageTitle";
 import Button from "../../ui/Button/Button";
@@ -10,8 +10,7 @@ import {
   useMaintenanceReport,
   useUpdateMaintenanceReport,
 } from "../../../hooks/useMaintenanceReports";
-import { useFFData } from "../../../hooks/useFFData";
-import { getFFProjects } from "../../../services/ffApi";
+import { getProjects } from "../../../api/localApi";
 
 const initialState = {
   projectNumber: "",
@@ -37,7 +36,11 @@ export default function CreateMaintenanceReportForm() {
 
   const [draft, setDraft] = useState({});
 
-  const { data: projects } = useFFData(getFFProjects, {}, []);
+  const { data: projRes } = useQuery({
+    queryKey: ["projects"],
+    queryFn: () => getProjects(),
+  });
+  const projects = projRes?.data || [];
   const { data: reportData, isLoading: isReportLoading } = useMaintenanceReport(id);
 
   const createMutation = useCreateMaintenanceReport();
@@ -63,12 +66,12 @@ export default function CreateMaintenanceReportForm() {
   const formData = useMemo(() => ({ ...baseData, ...draft }), [baseData, draft]);
 
   const onProjectChange = (projectCode) => {
-    const selected = (projects || []).find((p) => p.projectCode === projectCode);
+    const selected = (projects || []).find((p) => (p.code || p.projectCode) === projectCode);
     setDraft((prev) => ({
       ...prev,
       projectNumber: prev.projectNumber || projectCode,
       company: prev.company || selected?.companyName || selected?.company || "",
-      projectName: prev.projectName || selected?.projectName || selected?.name || "",
+      projectName: prev.projectName || selected?.name || selected?.projectName || "",
       disbursedAmount: selected?.contractValue || selected?.estimatedCost || prev.disbursedAmount || "",
       fromDate: toDateInput(selected?.startDate || selected?.actualStartDate),
       toDate: toDateInput(selected?.endDate || selected?.actualEndDate),
@@ -104,7 +107,7 @@ export default function CreateMaintenanceReportForm() {
       <PageTitle title="إضافة تقرير صيانة" />
       <form onSubmit={handleSubmit} className="bg-white shadow rounded-lg p-6 mt-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div><label className="block text-sm mb-1">اختيار المشروع (من FF) *</label><select value={draft.selectedProjectCode || ""} onChange={(e) => { setDraft((p) => ({ ...p, selectedProjectCode: e.target.value })); onProjectChange(e.target.value); }} className="w-full border rounded px-3 py-2" required><option value="">اختر المشروع</option>{(projects || []).map((project) => <option key={project._id} value={project.projectCode}>{project.projectName || project.name} ({project.projectCode})</option>)}</select></div>
+          <div><label className="block text-sm mb-1">اختيار المشروع *</label><select value={draft.selectedProjectCode || ""} onChange={(e) => { setDraft((p) => ({ ...p, selectedProjectCode: e.target.value })); onProjectChange(e.target.value); }} className="w-full border rounded px-3 py-2" required><option value="">اختر المشروع</option>{(projects || []).map((project) => <option key={project._id} value={project.code || project.projectCode}>{project.name || project.projectName} ({project.code || project.projectCode})</option>)}</select></div>
           <div><label className="block text-sm mb-1">رقم المشروع *</label><input name="projectNumber" value={formData.projectNumber} onChange={handleChange} className="w-full border rounded px-3 py-2" required /></div>
           <div><label className="block text-sm mb-1">الشركة</label><input name="company" value={formData.company} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
           <div><label className="block text-sm mb-1">بيان / اسم المشروع</label><input name="projectName" value={formData.projectName} onChange={handleChange} className="w-full border rounded px-3 py-2" /></div>
