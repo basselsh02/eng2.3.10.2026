@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getProjects, getExtracts } from "../../../api/localApi";
+import { getProjects } from "../../../api/projectAPI";
 import PageTitle from "../../ui/PageTitle/PageTitle";
 import Button from "../../ui/Button/Button";
 import Input from "../../ui/Input/Input";
@@ -16,17 +16,11 @@ export default function BudgetProjects() {
   const search = searchParams.get("search") || "";
   const [searchInput, setSearchInput] = useState(search);
 
-  const { data: projRes } = useQuery({
+  const { data: projRes, isLoading: loading, error } = useQuery({
     queryKey: ["projects", search],
     queryFn: () => getProjects({ search }),
   });
   const projects = projRes?.data || [];
-
-  const { data: extRes, isLoading: loading, error } = useQuery({
-    queryKey: ["extract-advances-budget"],
-    queryFn: () => getExtracts({ limit: 200 }),
-  });
-  const extracts = extRes?.data || [];
 
   const handleSearch = () => {
     const next = searchInput.trim();
@@ -67,10 +61,7 @@ export default function BudgetProjects() {
   const totalPages = Math.max(1, Math.ceil(statements.length / 10));
   const paginatedStatements = statements.slice((page - 1) * 10, page * 10);
 
-  const getProjectDeductionsCount = (projectName) => {
-    const projectExtracts = (extracts || []).filter((item) => item.projectName === projectName);
-    return projectExtracts.length;
-  };
+  const getProjectDeductionsCount = () => 0;
 
   return (
     <div>

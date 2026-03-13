@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getProcurements } from "../../../api/localApi";
+import { getAllFinancialTransactions } from "../../../api/financialTransactionAPI";
 import { FaBell, FaSearch, FaTimes } from "react-icons/fa";
 import Button from "../../ui/Button/Button";
 import Input from "../../ui/Input/Input";
@@ -67,8 +67,8 @@ export default function ProcurementMemos() {
 
   const actionButtons = useMemo(() => getActionButtons(activeTab), [activeTab]);
   const { data: res, isLoading: loading, error } = useQuery({
-    queryKey: ["procurements"],
-    queryFn: () => getProcurements(),
+    queryKey: ["financial-transactions-for-memos"],
+    queryFn: () => getAllFinancialTransactions({ page: 1, limit: 100 }),
   });
   const procurements = res?.data || [];
 
@@ -77,20 +77,20 @@ export default function ProcurementMemos() {
 
   const projects = (procurements || []).map((item, index) => ({
     id: item._id || index,
-    code: item.project?.code || item.approvalCode || "-",
-    name: item.project?.name || item.name || "-",
-    totalCost: item.value ? item.value.toLocaleString("ar-EG") : "-",
-    branchCode: item.company?._id || item.companyName || "-",
-    branchName: item.company?.companyName || item.companyName || "-",
+    code: item.projectCode || item.projectNumber || "-",
+    name: item.projectName || item.name || "-",
+    totalCost: item.projectCost ? item.projectCost.toLocaleString("ar-EG") : "-",
+    branchCode: item.branchCode || "-",
+    branchName: item.branchName || "-",
   }));
 
   const offers = (procurements || []).map((item, index) => ({
     sequence: index + 1,
-    companyCode: item.company?._id || item.companyName || "-",
-    companyName: item.company?.companyName || item.companyName || "-",
-    offerType: item.procurementType || "-",
-    securityApproval: item.securityApprovalCode || "-",
-    bidBond: item.value || "-",
+    companyCode: item.companyData?.companyCode || "-",
+    companyName: item.companyData?.companyName || "-",
+    offerType: item.companyData?.offerType || "-",
+    securityApproval: item.companyData?.serialOrder || "-",
+    bidBond: item.projectCost || "-",
     bidBondDate: item.createdAt ? new Date(item.createdAt).toLocaleDateString("ar-EG") : "-",
     documentCount: item.quantity || "-",
     documentType: item.category || "-",

@@ -1,3 +1,4 @@
+import api from "../../api/axiosInstance";
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
@@ -28,13 +29,12 @@ export default function EmployeeTasksPage() {
   const officeName = officeNameMap[officeKey] || officeKey;
 
   useEffect(() => {
-    fetch(`/api/office-tasks?office=${encodeURIComponent(officeName)}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setTasks(data.data || []);
-      });
+    api
+      .get("/office-tasks", { params: { office: officeName, limit: 100 } })
+      .then((response) => {
+        setTasks(response.data?.data || []);
+      })
+      .catch(() => setTasks([]));
   }, [officeName]);
 
   const handleEnterTask = (task) => {

@@ -10,7 +10,7 @@ import {
   useMaintenanceReport,
   useUpdateMaintenanceReport,
 } from "../../../hooks/useMaintenanceReports";
-import { getProjects } from "../../../api/localApi";
+import { getProjects } from "../../../api/projectAPI";
 
 const initialState = {
   projectNumber: "",
