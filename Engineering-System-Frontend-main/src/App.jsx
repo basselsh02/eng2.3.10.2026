@@ -65,6 +65,8 @@ import GuaranteeReportsPage from "./components/pages/GuaranteeLetters/GuaranteeR
 import RegisterGuaranteeLettersPage from "./components/pages/GuaranteeLetters/RegisterGuaranteeLettersPage";
 import MaintenanceReports from "./components/pages/Maintenance/MaintenanceReports";
 import CreateMaintenanceReportForm from "./components/pages/Maintenance/CreateMaintenanceReportForm";
+import EmployeeTasksPage from "./pages/offices/EmployeeTasksPage";
+import HeadTasksPage from "./pages/offices/HeadTasksPage";
 
 
 
@@ -515,6 +517,22 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <ProcurementMemos />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/offices/:officeKey/employee-tasks",
+        element: (
+          <ProtectedRoute>
+            <EmployeeTasksPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/offices/:officeKey/head-tasks",
+        element: (
+          <ProtectedRoute>
+            <HeadTasksPage />
           </ProtectedRoute>
         ),
       },
