@@ -15,6 +15,66 @@ import { logout } from "../../../features/auth/authSlice";
 import SidebarNode from "./SidebarNode";
 import { FaFileInvoiceDollar } from "react-icons/fa6";
 
+
+const officeNavItems = [
+  {
+    label: "مكتب الصيانة",
+    key: "maintenance",
+    children: [
+      { label: "مهام الموظف بمكتب الصيانة", path: "/offices/maintenance/employee-tasks" },
+      { label: "مهام رئيس القسم", path: "/offices/maintenance/head-tasks" },
+    ],
+  },
+  {
+    label: "مكتب العقود",
+    key: "contracts",
+    children: [
+      { label: "مهام الموظف بمكتب العقود", path: "/offices/contracts/employee-tasks" },
+      { label: "مهام رئيس القسم", path: "/offices/contracts/head-tasks" },
+    ],
+  },
+  {
+    label: "مكتب الحسابات",
+    key: "accounting",
+    children: [
+      { label: "مهام الموظف بمكتب الحسابات", path: "/offices/accounting/employee-tasks" },
+      { label: "مهام رئيس القسم", path: "/offices/accounting/head-tasks" },
+    ],
+  },
+  {
+    label: "مكتب المشتريات",
+    key: "procurement",
+    children: [
+      { label: "مهام الموظف بمكتب المشتريات", path: "/offices/procurement/employee-tasks" },
+      { label: "مهام رئيس القسم", path: "/offices/procurement/head-tasks" },
+    ],
+  },
+  {
+    label: "مكتب التوريدات",
+    key: "supplies",
+    children: [
+      { label: "مهام الموظف بمكتب التوريدات", path: "/offices/supplies/employee-tasks" },
+      { label: "مهام رئيس القسم", path: "/offices/supplies/head-tasks" },
+    ],
+  },
+  {
+    label: "مكتب الميزانية",
+    key: "budget",
+    children: [
+      { label: "مهام الموظف بمكتب الميزانية", path: "/offices/budget/employee-tasks" },
+      { label: "مهام رئيس القسم", path: "/offices/budget/head-tasks" },
+    ],
+  },
+  {
+    label: "مكتب النشر",
+    key: "publishing",
+    children: [
+      { label: "مهام الموظف بمكتب النشر", path: "/offices/publishing/employee-tasks" },
+      { label: "مهام رئيس القسم", path: "/offices/publishing/head-tasks" },
+    ],
+  },
+];
+
 const menu = [
   {
     label: "الصفحة الرئيسية",
@@ -41,6 +101,7 @@ const menu = [
     icon: <FaProjectDiagram className="size-5" />,
     path: "/projects",
   },
+  ...officeNavItems,
   // مكتب النشر
   {
     label: "مكتب النشر",

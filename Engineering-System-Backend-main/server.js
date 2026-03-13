@@ -39,6 +39,7 @@ import contractBudgetStatementRouter from "./src/modules/budgetOffice/routes/con
 import financialDeductionRouter from "./src/modules/budgetOffice/routes/financialDeduction.route.js";
 import guaranteeLetterRouter from "./src/modules/guaranteeLetters/routes/guaranteeLetter.routes.js";
 import claimRouter from "./src/modules/claims/routes/claim.routes.js";
+import officeTaskRouter from "./src/modules/officeTasks/routes/officeTask.routes.js";
 import logger from "./src/utils/logger.js";
 import { protect } from "./src/middleware/auth.middleware.js";
 import { attachSessionId, auditLogger, trackSessionActivity } from "./src/middleware/auditLogger.middleware.js";
@@ -123,6 +124,7 @@ app.use("/api/contract-budget-statements", protect, trackSessionActivity, auditL
 app.use("/api/financial-deductions", protect, trackSessionActivity, auditLogger, financialDeductionRouter);
 app.use("/api/guarantee-letters", protect, trackSessionActivity, auditLogger, guaranteeLetterRouter);
 app.use("/api/claims", protect, trackSessionActivity, auditLogger, claimRouter);
+app.use("/api/office-tasks", protect, officeTaskRouter);
 
 app.use("*", (req, res) => {
     res.status(404).json({ success: false, message: "Route not found" });
