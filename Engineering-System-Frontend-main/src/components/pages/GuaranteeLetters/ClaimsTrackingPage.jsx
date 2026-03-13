@@ -7,7 +7,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import Loading from "../../common/Loading/Loading";
 import GuaranteeModuleHeader from "./GuaranteeModuleHeader";
 import { getClaimsByProject, createClaim, updateClaim } from "../../../api/guaranteeLettersAPI";
-import { getExtracts } from "../../../api/localApi";
 
 const d = (v) => (v ? new Date(v).toLocaleDateString("ar-EG") : "-");
 
@@ -19,13 +18,6 @@ export default function ClaimsTrackingPage() {
   const handleSearch = () => projectCodeInput.trim() && setCommitted({ projectCode: projectCodeInput.trim() });
   const handleClear = () => { setProjectCodeInput(""); setCommitted(null); };
   const handleKeyDown = (e) => e.key === "Enter" && handleSearch();
-
-  const { data: extRes, isLoading: loadingFF, error: ffError } = useQuery({
-    queryKey: ["extract-advances", committed?.projectCode],
-    queryFn: () => getExtracts({ projectCode: committed?.projectCode }),
-    enabled: !!committed?.projectCode,
-  });
-  const ffExtracts = extRes?.data || [];
 
   const { data: localClaimsRes, isLoading: loadingLocal, error: localError } = useQuery({
     queryKey: ["claims", committed?.projectCode],
@@ -44,28 +36,24 @@ export default function ClaimsTrackingPage() {
 
   const merged = useMemo(() => {
     const localClaims = localClaimsRes?.data?.data?.claims || localClaimsRes?.data?.data || [];
-    const byExtract = new Map(localClaims.map((c) => [c.extractId || c.claimNumber, c]));
-    return (ffExtracts || []).map((ex) => {
-      const local = byExtract.get(ex._id) || byExtract.get(ex.extractNumber) || {};
-      return {
-        _id: local._id,
-        extractId: ex._id,
-        projectCode: committed?.projectCode,
-        extractNumber: ex.extractNumber || ex.claimNumber,
-        followupCompletionDate: ex.followupCompletionDate,
-        claimType: ex.extractType || ex.claimType,
-        code: ex.code || ex.projectCode,
-        employeeName: ex.employeeName,
-        branchName: ex.branchName,
-        claimDate: ex.extractDate || ex.claimDate,
-        claimValue: ex.totalAmount || ex.claimValue,
-        disbursementDue: ex.netAmount || ex.disbursementDue,
-        archiveReceiptDate: local.archiveReceiptDate ? local.archiveReceiptDate.slice(0, 10) : "",
-        exitDate: local.exitDate ? local.exitDate.slice(0, 10) : "",
-        completionNotes: local.completionNotes || local.notes || "",
-      };
-    });
-  }, [ffExtracts, localClaimsRes, committed?.projectCode]);
+    return (localClaims || []).map((claim) => ({
+      _id: claim._id,
+      extractId: claim.extractId || claim._id,
+      projectCode: claim.projectCode || committed?.projectCode,
+      extractNumber: claim.claimNumber || claim.extractNumber,
+      followupCompletionDate: claim.followupCompletionDate,
+      claimType: claim.claimType,
+      code: claim.code || claim.projectCode,
+      employeeName: claim.employeeName,
+      branchName: claim.branchName,
+      claimDate: claim.claimDate,
+      claimValue: claim.claimValue,
+      disbursementDue: claim.disbursementDue,
+      archiveReceiptDate: claim.archiveReceiptDate ? claim.archiveReceiptDate.slice(0, 10) : "",
+      exitDate: claim.exitDate ? claim.exitDate.slice(0, 10) : "",
+      completionNotes: claim.completionNotes || claim.notes || "",
+    }));
+  }, [localClaimsRes, committed?.projectCode]);
 
   const onLocalFieldChange = (row, field, value) => {
     saveMutation.mutate({
@@ -79,8 +67,8 @@ export default function ClaimsTrackingPage() {
     });
   };
 
-  const loading = loadingFF || loadingLocal;
-  const error = ffError || localError;
+  const loading = loadingLocal;
+  const error = localError;
 
   return (
     <div className="space-y-4" dir="rtl">

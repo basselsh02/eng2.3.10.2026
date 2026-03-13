@@ -1,3 +1,5 @@
+import api from "../../api/axiosInstance";
+import { getUsers } from "../../api/userAPI";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
@@ -17,39 +19,28 @@ export default function HeadTasksPage() {
   const [employees, setEmployees] = useState([]);
   const [selectedEmployees, setSelectedEmployees] = useState({});
   const officeName = officeNameMap[officeKey] || officeKey;
-  const token = localStorage.getItem("token");
 
   const loadTasks = async () => {
-    const response = await fetch(`/api/office-tasks?office=${encodeURIComponent(officeName)}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await response.json();
-    setTasks(data.data || []);
+    const response = await api.get("/office-tasks", { params: { office: officeName, limit: 100 } });
+    setTasks(response.data?.data || []);
   };
 
   useEffect(() => {
     loadTasks();
 
-    fetch(`/api/users?office=${encodeURIComponent(officeName)}&limit=100`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((response) => response.json())
-      .then((data) => setEmployees(data.data || []));
+    getUsers({ limit: 100 })
+      .then((data) => setEmployees(data.data || []))
+      .catch(() => setEmployees([]));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [officeName, token]);
+  }, [officeName]);
 
   const handleAssign = async (task) => {
     const selectedEmployee = selectedEmployees[task._id] || "all";
     const isAll = selectedEmployee === "all";
 
-    await fetch(`/api/office-tasks/${task._id}/${isAll ? "assign-all" : "assign"}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(isAll ? { office: officeName } : { employeeId: selectedEmployee }),
-    });
+    await api.patch(`/office-tasks/${task._id}/${isAll ? "assign-all" : "assign"}`,
+      isAll ? { office: officeName } : { employeeId: selectedEmployee }
+    );
 
     loadTasks();
   };

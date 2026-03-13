@@ -9,8 +9,6 @@ import Loading from "../../common/Loading/Loading";
 import Can from "../../common/Can/Can";
 import DataTable from "../../common/DataTabel/DataTable";
 import api from "../../../api/axiosInstance";
-import { useQuery } from "@tanstack/react-query";
-import { getContracts } from "../../../api/localApi";
 import { useMaintenanceReports } from "../../../hooks/useMaintenanceReports";
 
 const formatAmount = (amount) =>
@@ -23,33 +21,28 @@ export default function MaintenanceReports() {
   const [committedSearch, setCommittedSearch] = useState("");
   const [columnFilters, setColumnFilters] = useState([]);
 
-  const { data: contractsRes, isLoading: loading, error } = useQuery({
-    queryKey: ["contracts", committedSearch],
-    queryFn: () => getContracts({ search: committedSearch }),
+  const { data: localReportsRes, isLoading: loading, error } = useMaintenanceReports({
+    page: 1,
+    limit: 1000,
+    search: committedSearch,
   });
-  const contracts = contractsRes?.data || [];
-  const { data: localReportsRes } = useMaintenanceReports({ page: 1, limit: 1000, search: committedSearch });
 
   const localReports = localReportsRes?.data?.docs || [];
 
   const mergedData = useMemo(() => {
-    const byProject = new Map(localReports.map((r) => [r.projectNumber, r]));
-    const rows = (contracts || []).map((contract) => {
-      const local = byProject.get(contract.contractNumber || contract.projectCode) || {};
-      return {
-        id: contract._id,
-        sourceId: local._id,
-        projectNumber: local.projectNumber || contract.contractNumber || contract.projectCode || "",
-        company: local.company || contract.companyName || "",
-        projectName: local.projectName || contract.projectName || "",
-        disbursedAmount: contract.totalDisbursed,
-        fromDate: contract.startDate,
-        toDate: contract.endDate,
-        projectLocations: contract.location || contract.projectLocations,
-        isStopped: contract.status !== "active",
-        hallReceiptDate: contract.createdAt,
-      };
-    });
+    const rows = (localReports || []).map((report) => ({
+      id: report._id,
+      sourceId: report._id,
+      projectNumber: report.projectNumber || "",
+      company: report.company || "",
+      projectName: report.projectName || "",
+      disbursedAmount: report.disbursedAmount,
+      fromDate: report.fromDate,
+      toDate: report.toDate,
+      projectLocations: report.projectLocations,
+      isStopped: report.isStopped,
+      hallReceiptDate: report.hallReceiptDate,
+    }));
 
     if (!columnFilters.length) return rows;
     return rows.filter((row) =>
@@ -58,7 +51,7 @@ export default function MaintenanceReports() {
         return val !== undefined && String(val).toLowerCase().includes(String(f.value).toLowerCase());
       })
     );
-  }, [contracts, localReports, columnFilters]);
+  }, [localReports, columnFilters]);
 
   const columns = useMemo(
     () => [
