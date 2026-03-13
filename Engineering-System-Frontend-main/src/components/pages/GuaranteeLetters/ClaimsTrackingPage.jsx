@@ -7,8 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import Loading from "../../common/Loading/Loading";
 import GuaranteeModuleHeader from "./GuaranteeModuleHeader";
 import { getClaimsByProject, createClaim, updateClaim } from "../../../api/guaranteeLettersAPI";
-import { useFFData } from "../../../hooks/useFFData";
-import { getFFExtracts } from "../../../services/ffApi";
+import { getExtracts } from "../../../api/localApi";
 
 const d = (v) => (v ? new Date(v).toLocaleDateString("ar-EG") : "-");
 
@@ -21,11 +20,12 @@ export default function ClaimsTrackingPage() {
   const handleClear = () => { setProjectCodeInput(""); setCommitted(null); };
   const handleKeyDown = (e) => e.key === "Enter" && handleSearch();
 
-  const { data: ffExtracts, loading: loadingFF, error: ffError } = useFFData(
-    getFFExtracts,
-    { projectCode: committed?.projectCode },
-    [committed?.projectCode]
-  );
+  const { data: extRes, isLoading: loadingFF, error: ffError } = useQuery({
+    queryKey: ["extract-advances", committed?.projectCode],
+    queryFn: () => getExtracts({ projectCode: committed?.projectCode }),
+    enabled: !!committed?.projectCode,
+  });
+  const ffExtracts = extRes?.data || [];
 
   const { data: localClaimsRes, isLoading: loadingLocal, error: localError } = useQuery({
     queryKey: ["claims", committed?.projectCode],
